@@ -1,0 +1,23 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Propriedade Rural AgBot"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-51.180000, -29.168000],
+            [-51.178000, -29.168000],
+            [-51.178000, -29.170000],
+            [-51.180000, -29.170000],
+            [-51.180000, -29.168000]
+          ]
+        ]
+      }
+    }
+  ]
+}

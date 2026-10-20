@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # Utilizando broker público para facilitar, mas dockerizado para ambiente local
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: agbot-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: agbot-db
+    environment:
+      POSTGRES_USER: agbot_user
+      POSTGRES_PASSWORD: agbot_password
+      POSTGRES_DB: agbot_gis
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    container_name: agbot-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      MQTT_BROKER: broker.emqx.io
+      DATABASE_URL: postgresql://agbot_user:agbot_password@db/agbot_gis

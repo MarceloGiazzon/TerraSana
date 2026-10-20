@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#173c2c">
+    <meta name="description" content="Terra Sana: uma iniciativa de robótica agrícola aberta, modular e pensada para fortalecer a agricultura familiar e agroecológica.">
+    <title>Terra Sana | Plataforma AgBot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#inicio" aria-label="Terra Sana, início">
+        <span class="brand-mark" aria-hidden="true">T</span>
+        <span>TERRA SANA<span class="brand-period">.</span></span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menu">
+        <span></span><span></span>
+      </button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Navegação principal">
+        <a href="#sistema">O sistema</a>
+        <a href="#modulos">Módulos</a>
+        <a href="#principios">Princípios</a>
+        <a class="nav-cta" href="Visao/documento_master_agbot.md">Conheça o projeto <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Robótica aberta para a agricultura familiar</p>
+          <h1>Tecnologia que cultiva <em>autonomia.</em></h1>
+          <p class="hero-intro">Um ecossistema modular de robótica agrícola, energia solar e inteligência local, feito para trabalhar junto de quem cuida da terra.</p>
+          <div class="hero-actions">
+            <a class="button button-bright" href="#modulos">Explorar os módulos <span aria-hidden="true">↓</span></a>
+            <a class="text-link" href="#sistema">Entender o ecossistema <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="hero-note"><span class="note-line"></span><span>Open hardware · Reparável · Cooperativo</span></div>
+        </div>
+        <figure class="hero-image">
+          <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=85" alt="Cultivo em linhas em uma propriedade rural ao amanhecer" fetchpriority="high">
+          <figcaption><span>AGRICULTURA DE PEQUENA ESCALA</span><span>01 / 07</span></figcaption>
+          <div class="image-stamp"><span>FEITO PARA</span><strong>o campo<br>real.</strong></div>
+        </figure>
+        <div class="hero-index" aria-hidden="true">TERRA SANA / 2026</div>
+      </section>
+
+      <section class="signal-bar" aria-label="Características principais">
+        <div><span class="signal-number">07</span><span>ferramentas<br>intercambiáveis</span></div>
+        <div><span class="signal-number">24<span class="signal-unit">V</span></span><span>plataforma<br>elétrica</span></div>
+        <div><span class="signal-number signal-word">ABERTO</span><span>projeto feito para<br>ser adaptado</span></div>
+        <p>Pequena escala.<br><strong>Grande capacidade coletiva.</strong></p>
+      </section>
+
+      <section class="system-section section-pad" id="sistema">
+        <div class="section-heading reveal">
+          <p class="eyebrow eyebrow-dark">01 — Um sistema, muitas possibilidades</p>
+          <h2>Do céu ao solo,<br><em>em sintonia.</em></h2>
+          <p>O AgBot combina unidades especializadas em uma arquitetura que pode operar localmente e se adaptar à realidade de cada propriedade.</p>
+        </div>
+        <div class="system-layout">
+          <div class="system-visual reveal" aria-label="Diagrama da arquitetura AgBot">
+            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+            <div class="system-core"><span class="core-sun" aria-hidden="true">✳</span><strong>AGBOT</strong><small>CAMPO CONECTADO</small></div>
+            <div class="node node-drone"><span class="node-symbol" aria-hidden="true">✳</span><span><strong>Infodrone</strong><small>Reconhece</small></span></div>
+            <div class="node node-hub"><span class="node-symbol" aria-hidden="true">⌂</span><span><strong>AgHub</strong><small>Coordena</small></span></div>
+            <div class="node node-base"><span class="node-symbol" aria-hidden="true">▰</span><span><strong>AgBot</strong><small>Executa</small></span></div>
+            <span class="visual-label label-top">OBSERVAÇÃO</span><span class="visual-label label-bottom">AÇÃO NO CAMPO</span>
+          </div>
+          <div class="system-points">
+            <article class="system-point reveal"><span class="point-index">01</span><div><h3>O AgBot trabalha</h3><p>Uma base terrestre elétrica recebe ferramentas de engate rápido para diferentes tarefas no campo.</p></div><span class="point-arrow" aria-hidden="true">↗</span></article>
+            <article class="system-point reveal"><span class="point-index">02</span><div><h3>O Infodrone observa</h3><p>Uma unidade aérea de reconhecimento amplia a leitura da propriedade e apoia o planejamento das missões.</p></div><span class="point-arrow" aria-hidden="true">↗</span></article>
+            <article class="system-point reveal"><span class="point-index">03</span><div><h3>O AgHub conecta</h3><p>Uma estação local reúne comunicação, processamento na borda e apoio à operação da frota.</p></div><span class="point-arrow" aria-hidden="true">↗</span></article>
+            <a class="inline-link" href="Visao/agbot_opensource_technical_specifications.md">Ver arquitetura técnica <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="modules-section section-pad" id="modulos">
+        <div class="modules-top reveal">
+          <div>
+            <p class="eyebrow eyebrow-dark">02 — Ferramentas para cada etapa</p>
+            <h2>Uma base.<br><em>Sete jeitos de cuidar.</em></h2>
+          </div>
+          <p>Troque a ferramenta, mantenha a plataforma. Cada módulo nasce de uma necessidade concreta da produção agroecológica.</p>
+        </div>
+        <div class="module-controls" role="group" aria-label="Filtrar módulos">
+          <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">Todos <span>07</span></button>
+          <button class="filter-button" type="button" data-filter="solo" aria-pressed="false">Solo e plantio</button>
+          <button class="filter-button" type="button" data-filter="manejo" aria-pressed="false">Manejo e cuidado</button>
+          <button class="filter-button" type="button" data-filter="colheita" aria-pressed="false">Colheita e cultivo</button>
+        </div>
+        <div class="module-grid">
+          <article class="module-card module-feature" data-category="manejo">
+            <div class="module-card-top"><span class="module-number">01 / MANEJO</span><span class="module-mark mark-cut" aria-hidden="true">✳</span></div>
+            <h3>Roçador<br>e cortador</h3>
+            <p>Manejo de vegetação rasteira e plantas espontâneas sem herbicidas.</p>
+            <a href="modulos/modulo-01.html" aria-label="Conhecer o módulo Roçador e Cortador">Conhecer módulo <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="module-card" data-category="solo">
+            <div class="module-card-top"><span class="module-number">02 / PLANTIO</span><span class="module-mark mark-seed" aria-hidden="true">◉</span></div>
+            <h3>Semeadora<br>e adubadeira</h3>
+            <p>Dosagem de sementes e adubo com sulcador e compactação ajustável.</p>
+            <a href="modulos/modulo-02.html" aria-label="Conhecer o módulo Semeadora e Adubadeira">Conhecer módulo <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="module-card" data-category="solo">
+            <div class="module-card-top"><span class="module-number">03 / SOLO</span><span class="module-mark mark-probe" aria-hidden="true">⌁</span></div>
+            <h3>Análise de<br>solo profundo</h3>
+            <p>Amostragem georreferenciada e leitura de propriedades físicas e químicas.</p>
+            <a href="modulos/modulo-03.html" aria-label="Conhecer o módulo de Análise de Solo Profundo">Conhecer módulo <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="module-card" data-category="solo">
+            <div class="module-card-top"><span class="module-number">04 / PREPARO</span><span class="module-mark mark-mill" aria-hidden="true">⟳</span></div>
+            <h3>Moinho rotativo<br>e cultivador</h3>
+            <p>Aeração localizada, preparo de canteiros e incorporação de cobertura.</p>
+            <a href="modulos/modulo-04.html" aria-label="Conhecer o módulo Moinho Rotativo">Conhecer módulo <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="module-card" data-category="manejo">
+            <div class="module-card-top"><span class="module-number">05 / ÁGUA</span><span class="module-mark mark-water" aria-hidden="true">≈</span></div>
+            <h3>Irrigador<br>micro-localizado</h3>
+            <p>Irrigação e aplicação localizada de bioinsumos conforme a necessidade.</p>
+            <a href="modulos/modulo-05.html" aria-label="Conhecer o módulo Irrigador e Pulverizador">Conhecer módulo <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="module-card" data-category="colheita">
+            <div class="module-card-top"><span class="module-number">06 / COLHEITA</span><span class="module-mark mark-arm" aria-hidden="true">⌘</span></div>
+            <h3>Braço robótico<br>de colheita</h3>
+            <p>Colheita seletiva apoiada por visão computacional e garra adaptativa.</p>
+            <a href="modulos/modulo-06.html" aria-label="Conhecer o módulo Braço de Colheita">Conhecer módulo <span aria-hidden="true">↗</span></a>
+          </article>
+          <article class="module-card module-mushroom" data-category="colheita">
+            <div class="module-card-top"><span class="module-number">07 / CULTIVO</span><span class="module-mark mark-mushroom" aria-hidden="true">◒</span></div>
+            <h3>Climatização<br>e cogumelos</h3>
+            <p>Monitoramento de microclima e controle ambiental para estufas e fungicultura.</p>
+            <a href="modulos/modulo-07.html" aria-label="Conhecer o módulo Climatização e Cogumelos">Conhecer módulo <span aria-hidden="true">↗</span></a>
+          </article>
+        </div>
+        <p class="module-count" aria-live="polite">Exibindo 7 módulos</p>
+      </section>
+
+      <section class="principles-section" id="principios">
+        <div class="principles-image">
+          <img src="https://images.unsplash.com/photo-1499529112087-3cb3b73cec95?auto=format&fit=crop&w=1200&q=85" alt="Mãos segurando terra fértil com uma muda" loading="lazy">
+          <span class="photo-note">TECNOLOGIA COM RAIZ.</span>
+        </div>
+        <div class="principles-copy">
+          <p class="eyebrow">03 — Mais que automação</p>
+          <h2>Inovação que<br>fica <em>nas mãos<br>de quem planta.</em></h2>
+          <p class="principles-intro">O projeto parte de uma ideia simples: a tecnologia rural deve poder ser compreendida, consertada e aprimorada por quem a utiliza.</p>
+          <div class="principle-list">
+            <div><span>01</span><p><strong>Conhecimento aberto</strong><br>Projetos e software pensados para colaboração.</p></div>
+            <div><span>02</span><p><strong>Reparabilidade local</strong><br>Componentes acessíveis e manutenção próxima.</p></div>
+            <div><span>03</span><p><strong>Força cooperativa</strong><br>Máquinas e inteligência que podem ser compartilhadas.</p></div>
+          </div>
+          <a class="button button-outline" href="Visao/apresenta_o_executiva_agbot.md">Ler visão do projeto <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+
+      <section class="closing-section">
+        <p class="eyebrow eyebrow-dark">TERRA SANA · PLATAFORMA AGBOT</p>
+        <h2>O futuro do campo<br>também pode ser <em>feito em comunidade.</em></h2>
+        <a class="button button-dark" href="Visao/documento_master_agbot.md">Acessar o plano diretor <span aria-hidden="true">↗</span></a>
+        <span class="closing-orbit orbit-a" aria-hidden="true"></span><span class="closing-orbit orbit-b" aria-hidden="true"></span>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand footer-brand" href="#inicio" aria-label="Terra Sana, início"><span class="brand-mark" aria-hidden="true">T</span><span>TERRA SANA<span class="brand-period">.</span></span></a>
+      <p>Plataforma AgBot · Robótica aberta para cultivar autonomia.</p>
+      <a href="#inicio">Voltar ao topo ↑</a>
+      <small>© 2026 Terra Sana · Projeto em desenvolvimento</small>
+    </footer>
+  </body>
+</html>

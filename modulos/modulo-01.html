@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Conheça o módulo roçador e cortador da plataforma AgBot Terra Sana.">
+    <title>Terra Sana | Módulo 01 - Roçador e Cortador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <script src="../script.js" defer></script>
+  </head>
+  <body class="module-page">
+    <header class="site-header module-site-header">
+      <a class="brand" href="../index.html" aria-label="Terra Sana, início"><span class="brand-mark" aria-hidden="true">T</span><span>TERRA SANA<span class="brand-period">.</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menu"><span></span><span></span></button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Navegação principal"><a href="../index.html#modulos">Todos os módulos</a><a class="nav-cta" href="../index.html">Projeto Terra Sana <span aria-hidden="true">↗</span></a></nav>
+    </header>
+    <main class="module-detail">
+      <section class="module-hero">
+        <div class="module-hero-copy"><p class="module-kicker">Módulo 01 / Manejo</p><h1>Roçador <em>e cortador</em></h1><p class="module-lead">Manejo de vegetação rasteira e plantas espontâneas sem herbicidas, com altura de corte ajustável e proteção contra travamento.</p><a class="module-back-link" href="../index.html#modulos">← Voltar para os sete módulos</a></div>
+        <figure class="module-image"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85" alt="Área rural cultivada em linhas" fetchpriority="high"><figcaption><span>Manejo mecânico</span><span>01 / 07</span></figcaption></figure>
+      </section>
+      <section class="module-spec-strip" aria-label="Destaques técnicos"><div><strong>500 mm</strong><span>largura de corte</span></div><div><strong>600 W</strong><span>motor BLDC · 24 V</span></div><div><strong>20–120 mm</strong><span>altura de corte</span></div></section>
+      <section class="module-details">
+        <div class="module-details-heading"><p class="eyebrow eyebrow-dark">Manejo de cobertura</p><h2>Corte controlado,<br><em>solo protegido.</em></h2><p>O conjunto combina disco de corte flutuante com ajuste de altura e monitoramento de esforço para interromper a operação em caso de travamento.</p></div>
+        <div class="module-info-grid">
+          <article class="module-info-block"><h3>Conjunto mecânico</h3><ul><li>Disco duplo em alumínio 6061-T6.</li><li>Quatro lâminas flutuantes em aço 1095.</li><li>Atuador linear IP67 de 1000 N, com curso de 100 mm.</li></ul></article>
+          <article class="module-info-block"><h3>Sensoriamento e proteção</h3><ul><li>Sensor Hall para leitura de rotação.</li><li>Monitoramento de corrente para detectar condição de anti-stall.</li><li>Desliga o motor acima de 35 A por mais de 200 ms e eleva o conjunto automaticamente.</li></ul></article>
+          <article class="module-info-block"><h3>Integração ROS 2</h3><p>Publica rotação, corrente e altura em <code>/mod01/telemetry</code>. Recebe comandos de altura e potência em <code>/mod01/cmd_height</code> e <code>/mod01/cmd_power</code>.</p></article>
+          <article class="module-info-block"><h3>Uso previsto</h3><p>Roçada de vegetação rasteira e manejo de ervas daninhas em canteiros e áreas de produção, sem aplicação de herbicidas químicos.</p></article>
+        </div>
+      </section>
+      <section class="module-bom-section"><div class="module-bom-heading"><h2>Componentes estimados</h2><p>Valores conforme ficha técnica do projeto.</p></div><div class="module-table-wrap"><table class="module-table"><thead><tr><th scope="col">Componente</th><th scope="col">Qtd.</th><th scope="col">Custo estimado</th></tr></thead><tbody><tr><td>Motor BLDC 600 W 24 V IP67</td><td>1</td><td>R$ 750,00</td></tr><tr><td>Atuador linear 1000 N IP67</td><td>1</td><td>R$ 420,00</td></tr><tr><td>Disco e lâminas flutuantes em aço 1095</td><td>1</td><td>R$ 380,00</td></tr><tr><td>Driver MOSFET Controller 24 V 50 A</td><td>1</td><td>R$ 350,00</td></tr><tr><td>Conectores Deutsch DT 12-pin</td><td>1</td><td>R$ 150,00</td></tr></tbody><tfoot><tr><td colspan="2">Total estimado</td><td>R$ 2.200,00</td></tr></tfoot></table></div><p class="module-source">Consulte a <a href="../Robos/Modulos/01_Rocador_Cortador/README.md">ficha técnica original</a>. Estimativas sujeitas a revisão.</p></section>
+    </main>
+    <nav class="module-pagination" aria-label="Navegar entre módulos"><span></span><a href="modulo-02.html">Próximo módulo: Semeadora →</a></nav>
+    <footer class="module-page-footer"><a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">T</span><span>TERRA SANA<span class="brand-period">.</span></span></a><a href="../index.html#modulos">Voltar ao catálogo de módulos ↑</a></footer>
+  </body>
+</html>
