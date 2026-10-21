@@ -8,28 +8,41 @@ BROKER = "broker.emqx.io"
 PORT = 1883
 TOPIC = "agbot/linha30/telemetry"
 
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
         print("Conectado ao Broker MQTT!")
     else:
-        print(f"Falha na conexão, código: {rc}")
+        print(f"Falha na conexão, código: {reason_code}")
 
-client = mqtt.Client()
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
 client.connect(BROKER, PORT, 60)
 
-# Coordenadas base simuladas (Caxias do Sul/RS aproximado conforme prompt)
-current_lat = -29.168100
-current_lng = -51.179400
+# Inicia alguns metros dentro do terreno, a partir do acesso pela estrada.
+FIELD_LAT_MIN = -29.116392
+FIELD_LAT_MAX = -29.115946
+FIELD_LNG_MIN = -51.227988
+FIELD_LNG_MAX = -51.224489
+current_lat = -29.116169
+current_lng = -51.224500
+longitude_direction = -1
+latitude_direction = 1
 battery_soc = 100.0
 
 print("🛸 Simulador AgBot iniciado... Enviando telemetria.")
 
 try:
     while True:
-        # Simula o deslocamento do robô em pequenas frações geográficas (zigue-zague simples)
-        current_lat += 0.000005 * random.choice([1, 1.1, 0.9, -0.2])
-        current_lng += 0.000008 * random.choice([1, 1.05, 0.95, 0.1])
+        # Percorre o terreno em faixas e inverte o sentido ao chegar às bordas.
+        current_lng += longitude_direction * 0.000008
+        if current_lng <= FIELD_LNG_MIN or current_lng >= FIELD_LNG_MAX:
+            current_lng = min(FIELD_LNG_MAX, max(FIELD_LNG_MIN, current_lng))
+            longitude_direction *= -1
+            next_lat = current_lat + latitude_direction * 0.00008
+            if next_lat > FIELD_LAT_MAX or next_lat < FIELD_LAT_MIN:
+                latitude_direction *= -1
+                next_lat = current_lat + latitude_direction * 0.00008
+            current_lat = next_lat
         
         battery_soc = max(0, battery_soc - 0.005)
         

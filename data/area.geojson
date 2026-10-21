@@ -4,17 +4,19 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Propriedade Rural AgBot"
+        "name": "Propriedade Rural AgBot",
+        "address": "Estr. Mun. Ver. Marcial Pisoni, 2448 - Linha 40, Caxias do Sul - RS, 95044-010",
+        "area_m2": 21804.38
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [
           [
-            [-51.180000, -29.168000],
-            [-51.178000, -29.168000],
-            [-51.178000, -29.170000],
-            [-51.180000, -29.170000],
-            [-51.180000, -29.168000]
+            [-51.224389, -29.115896],
+            [-51.224389, -29.116442],
+            [-51.228088, -29.116442],
+            [-51.228088, -29.115896],
+            [-51.224389, -29.115896]
           ]
         ]
       }
