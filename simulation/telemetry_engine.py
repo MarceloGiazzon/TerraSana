@@ -21,13 +21,14 @@ PUBLISH_INTERVAL_S = float(os.getenv("PUBLISH_INTERVAL_S", "2"))
 MODULE_ROTATION_S = float(os.getenv("MODULE_ROTATION_S", "120"))
 FIXED_MODULE = os.getenv("ACTIVE_MODULE", "").upper()
 
-# Limites do terreno (mesmos de data/area.geojson)
-FIELD_LAT_MIN = -29.116392
-FIELD_LAT_MAX = -29.115946
-FIELD_LNG_MIN = -51.227988
-FIELD_LNG_MAX = -51.224489
-LNG_STEP = 0.00002   # avanço por leitura ao longo da faixa
-LAT_STEP = 0.00008   # distância entre faixas
+# Área de trabalho dentro da horta (talhões 2 a 5), contida no contorno de
+# data/area.geojson. A geometria completa da propriedade está em frontend/src/farm.js.
+FIELD_LAT_MIN = -29.116233
+FIELD_LAT_MAX = -29.116005
+FIELD_LNG_MIN = -51.226809
+FIELD_LNG_MAX = -51.225397
+LNG_STEP = 0.00002   # avanço por leitura ao longo da faixa (~2 m)
+LAT_STEP = 0.00004   # distância entre faixas (~4,5 m)
 
 
 def rand(low, high, digits=1):
@@ -98,7 +99,7 @@ def m04(state, ctx):
 
 
 def m05(state, ctx):
-    flow = rand(0.8, 1.6, 2)
+    flow = rand(0.3, 0.5, 2)  # gotejamento no pé da planta
     state.applied_l += flow * PUBLISH_INTERVAL_S / 60
     state.tank_level = max(0.0, 100 - state.applied_l / 20 * 100)
     return {
@@ -161,7 +162,7 @@ def main():
     client.connect(BROKER, PORT, 60)
     client.loop_start()
 
-    lat, lng = -29.116169, -51.224500
+    lat, lng = FIELD_LAT_MIN, FIELD_LNG_MAX
     lng_dir, lat_dir = -1, 1
     battery = 100.0
     started_at = time.time()

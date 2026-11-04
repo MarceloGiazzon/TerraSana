@@ -26,16 +26,16 @@ const float CURRENT_FULL_SCALE = 60.0;   // A em 4095
 const float STALL_CURRENT_A    = 55.0;   // limite anti-pedra do M04: acima disso, parada
 const unsigned long PUBLISH_MS = 2000;
 
-// Varredura do terreno em faixas (mesmos limites de data/area.geojson)
-const double LAT_MIN = -29.116392, LAT_MAX = -29.115946;
-const double LNG_MIN = -51.227988, LNG_MAX = -51.224489;
-const double LNG_STEP = 0.00004, LAT_STEP = 0.00008;
+// Varredura em faixas numa área da horta contida em data/area.geojson
+const double LAT_MIN = -29.116233, LAT_MAX = -29.116005;
+const double LNG_MIN = -51.226809, LNG_MAX = -51.225397;
+const double LNG_STEP = 0.00004, LAT_STEP = 0.00004;
 
 WiFiClient espClient;
 PubSubClient mqtt(espClient);
 unsigned long lastPublish = 0;
 float batteryPercent = 100.0;
-double latitude = -29.116169, longitude = -51.224500;
+double latitude = -29.116233, longitude = -51.225397;
 int lngDir = -1, latDir = 1;
 bool eStopLatched = false;
 bool lastButton = HIGH;
