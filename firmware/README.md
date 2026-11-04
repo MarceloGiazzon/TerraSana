@@ -1,48 +1,24 @@
-# Firmware Simulado AgBot (ESP32)
+# Firmware simulado · AgBot M04 (ESP32)
 
-Este diretório contém o código de simulação para o microcontrolador ESP32 usando Wokwi.
+Firmware de referência do **Módulo 04 — Moinho Rotativo**, pensado para rodar no simulador [Wokwi](https://wokwi.com) sem hardware físico.
 
-## Módulo M04 - Moinho Rotativo
+| Arquivo | Conteúdo |
+| :--- | :--- |
+| [`agbot_m04/agbot_m04.ino`](agbot_m04/agbot_m04.ino) | Sketch Arduino: Wi-Fi, MQTT, leitura de corrente e publicação de telemetria |
+| [`agbot_m04/diagram.json`](agbot_m04/diagram.json) | Circuito Wokwi: ESP32 DevKit C + potenciômetro no GPIO34 simulando o sensor de corrente |
 
-O firmware simula:
-- Conexão Wi-Fi
-- Conexão MQTT
-- Leitura de sensores via Mocks (ADC)
-- Publicação de telemetria
+## O que o firmware faz
 
-### Link para Simulação Wokwi:
-[Adicionar Link Aqui]
+1. Conecta ao Wi-Fi `Wokwi-GUEST`.
+2. Conecta ao broker MQTT público `broker.emqx.io:1883`.
+3. A cada 2 s lê o ADC (GPIO34) e converte para corrente (0–30 A).
+4. Publica um JSON em `agbot/linha30/telemetry`, no **mesmo formato** do simulador Python, para que o backend e o painel exibam os dados sem alteração.
 
-### Exemplo de código (C++/Arduino):
+## Como simular
 
-```cpp
-#include <WiFi.h>
-#include <PubSubClient.h>
+1. Crie um projeto ESP32 em wokwi.com.
+2. Cole o conteúdo de `agbot_m04.ino` e de `diagram.json`.
+3. Na aba *Library Manager*, adicione **PubSubClient**.
+4. Inicie a simulação e gire o potenciômetro para variar a corrente do motor.
 
-const char* ssid = "Wokwi-GUEST";
-const char* password = "";
-const char* mqtt_server = "broker.emqx.io";
-
-WiFiClient espClient;
-PubSubClient client(espClient);
-
-void setup() {
-  Serial.begin(115200);
-  setup_wifi();
-  client.setServer(mqtt_server, 1883);
-}
-
-void loop() {
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
-
-  // Simulação de leitura do M04
-  float current = analogRead(34) * (30.0 / 4095.0); 
-  
-  String payload = "{\"motor_current\": " + String(current) + "}";
-  client.publish("agbot/firmware/m04", payload.c_str());
-  delay(2000);
-}
-```
+Com o backend rodando (veja o [README principal](../README.md)), os dados aparecem no painel em tempo real.
