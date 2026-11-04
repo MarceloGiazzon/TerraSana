@@ -352,7 +352,7 @@ h2 { margin-bottom: 1rem; color: var(--forest); font-size: clamp(2.7rem, 5vw, 4.
 .shot-chrome { height: 34px; padding: 0 14px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--line); background: #eceee4; }
 .shot-chrome i { width: 9px; height: 9px; border-radius: 50%; background: #cfd5c7; }
 .shot-chrome span { margin-left: 10px; color: var(--muted); font: 600 .6rem var(--display); letter-spacing: .08em; text-transform: uppercase; }
-.software-shot img { height: auto; aspect-ratio: 1440 / 900; }
+.software-shot img { height: auto; aspect-ratio: 1440 / 1300; }
 .software-shot a { display: block; }
 .software-shot figcaption { padding: .7rem 1rem; color: var(--muted); font-size: .68rem; border-top: 1px solid var(--line); background: var(--white); }
 .closing-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1rem 1.8rem; }

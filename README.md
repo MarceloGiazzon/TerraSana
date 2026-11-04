@@ -41,9 +41,10 @@ Sobre a mesma base, **sete módulos intercambiáveis** cobrem o ciclo produtivo:
 | :--- | :--- |
 | Site institucional e fichas dos módulos | ✅ Publicado |
 | Simulador de telemetria (Python → MQTT) | ✅ Funcional |
-| Backend AgHub (FastAPI, MQTT → WebSocket) | ✅ Funcional |
-| Painel de monitoramento (React, MapLibre 2D/3D) | ✅ Funcional, com modo demonstração |
-| Firmware ESP32 do módulo M04 (Wokwi) | 🧪 Simulação |
+| Simulador dos 7 módulos, cada um com suas métricas | ✅ Funcional |
+| Backend AgHub (FastAPI, MQTT → WebSocket, histórico em SQLite) | ✅ Funcional |
+| Painel de monitoramento (React, MapLibre 2D/3D, gráficos e mapa de umidade) | ✅ Funcional, com modo demonstração |
+| Firmware ESP32 do módulo M04 (Wokwi), visível no painel público | 🧪 Simulação |
 | Hardware físico | 📐 Em especificação |
 
 ## Arquitetura de software
@@ -52,7 +53,9 @@ Sobre a mesma base, **sete módulos intercambiáveis** cobrem o ciclo produtivo:
 flowchart LR
     A[ESP32 / simulador<br/>telemetria JSON] -- MQTT --> B[(Broker<br/>Mosquitto / EMQX)]
     B -- agbot/linha30/telemetry --> C[AgHub · FastAPI]
-    C -- WebSocket /ws/telemetry --> D[Painel React<br/>MapLibre · Leaflet]
+    C -- grava --> H[(SQLite<br/>histórico)]
+    C -- WebSocket /ws/telemetry<br/>GET /telemetry/history --> D[Painel React<br/>MapLibre · Leaflet]
+    B -. WebSocket MQTT<br/>modo ESP32 .-> D
     E[data/area.geojson] --> D
 ```
 
@@ -117,25 +120,78 @@ Por padrão o simulador e o backend usam o broker público `broker.emqx.io`; def
 | :--- | :--- | :--- |
 | `MQTT_BROKER` / `MQTT_PORT` / `MQTT_TOPIC` | backend, simulador | `broker.emqx.io` / `1883` / `agbot/linha30/telemetry` |
 | `CORS_ORIGINS` | backend | `http://localhost:5173,http://127.0.0.1:5173` |
+| `DB_PATH` | backend | `backend/data/telemetry.db` |
+| `HISTORY_RETENTION_DAYS` | backend | `7` |
+| `MODULE_ROTATION_S` | simulador | `120` (troca de módulo a cada 2 min) |
+| `ACTIVE_MODULE` | simulador | vazio (gira os 7); ex.: `M03` fixa a análise de solo |
+| `PUBLISH_INTERVAL_S` | simulador | `2` |
 | `VITE_WS_URL` | painel | `ws://<host>:8010/ws/telemetry` |
+| `VITE_MQTT_WS_URL` / `VITE_MQTT_TOPIC` | painel (modo ESP32) | `wss://broker.emqx.io:8084/mqtt` / `agbot/linha30/telemetry` |
+| `VITE_WOKWI_URL` | painel (modo ESP32) | vazio (link do projeto no Wokwi) |
 
 ### Endpoints
 
 | Rota | Descrição |
 | :--- | :--- |
 | `GET /health` | Estado da API e da conexão MQTT |
-| `GET /telemetry/latest` | Última mensagem recebida |
+| `GET /telemetry/latest` | Última mensagem recebida (recuperada do banco ao reiniciar) |
+| `GET /telemetry/history?minutes=120&limit=3000&robot_id=` | Leituras gravadas: posição, bateria, umidade e módulo |
 | `WS /ws/telemetry` | Fluxo contínuo de telemetria |
 
-## Modo demonstração
+### Testes
 
-Quando não há backend disponível — como no site publicado — o painel gera a telemetria no próprio navegador, com o mesmo padrão de varredura do simulador. Localmente, force com `http://localhost:5173/?demo`.
+```bash
+backend/.venv/bin/pip install -r backend/requirements-dev.txt
+cd backend && .venv/bin/python -m pytest -q tests
+```
+
+O workflow [`testes.yml`](.github/workflows/testes.yml) roda os testes e o build do painel a cada push.
+
+## Fontes de dados do painel
+
+O seletor no topo do painel escolhe de onde vem a telemetria (também pela URL, com `?fonte=`):
+
+| Fonte | De onde vêm os dados | Histórico |
+| :--- | :--- | :--- |
+| **AgHub** (só local) | Backend em `ws://localhost:8010` | Gravado em SQLite; o painel carrega as últimas 2 horas ao abrir |
+| **ESP32** | Broker MQTT público via WebSocket, onde o firmware no Wokwi publica | Desde que o painel foi aberto |
+| **Demo** | Simulação no navegador (padrão no site publicado) | Começa com 10 minutos de operação simulada |
+
+No modo **Demo**, os botões dos módulos acoplam outra ferramenta na hora. Nas outras fontes, eles só mostram qual módulo está ativo.
+
+O painel publicado também recebe o ESP32: abra [o painel no modo ESP32](https://marcelogiazzon.github.io/TerraSana/painel/?fonte=esp32), inicie a simulação no Wokwi (veja o [firmware](firmware/README.md)) e as leituras aparecem no mapa.
+
+## Formato da telemetria
+
+```json
+{
+  "robot_id": "agbot_prototipo_v1",
+  "timestamp": 1793825324,
+  "location": { "latitude": -29.116169, "longitude": -51.22466, "altitude_m": 750.2 },
+  "status": { "battery_percent": 99.84, "active_module": "M03_SOLO_PROFUNDO", "speed_kmh": 1.46, "e_stop": false },
+  "module_telemetry": { "nitrogen_mg_kg": 31.2, "phosphorus_mg_kg": 14.8, "potassium_mg_kg": 121.5, "ph": 6.2, "probe_depth_cm": 30 },
+  "environmental": { "soil_moisture_percent": 34.1, "ambient_temp_c": 21.2 }
+}
+```
+
+| Módulo (`active_module`) | Campos em `module_telemetry` |
+| :--- | :--- |
+| `M01_ROCADOR` | `blade_rpm`, `blade_current_amp`, `cut_height_mm`, `area_cut_m2` |
+| `M02_SEMEADORA` | `seeds_planted`, `seed_spacing_cm`, `hopper_level_percent`, `fertilizer_g_m` |
+| `M03_SOLO_PROFUNDO` | `nitrogen_mg_kg`, `phosphorus_mg_kg`, `potassium_mg_kg`, `ph`, `probe_depth_cm` |
+| `M04_MOINHO_ROTATIVO` | `motor_current_amp`, `soil_resistance_index`, `depth_cm` |
+| `M05_IRRIGADOR` | `tank_level_percent`, `flow_lpm`, `pressure_bar`, `applied_l` |
+| `M06_COLHEITA` | `harvested_count`, `detection_confidence_percent`, `grip_force_n`, `cycle_time_s` |
+| `M07_COGUMELOS` | `co2_ppm`, `air_humidity_percent`, `air_temp_c`, `fogger_on` |
+
+As métricas exibidas de cada módulo ficam em [`frontend/src/modules.js`](frontend/src/modules.js). O formato antigo do M04 (`telemetry_m04`) continua aceito.
 
 ## Mapa e terreno 3D
 
 - O modo 3D usa MapLibre com elevação Terrarium e requer WebGL2.
 - Sem WebGL2, o painel usa Leaflet com tiles raster do OpenStreetMap em 2D.
 - O limite da propriedade vem de [`data/area.geojson`](data/area.geojson).
+- A camada **Umidade** agrupa as leituras em células de ~4 m e mostra a média de cada uma, numa escala de um só tom (claro = seco, escuro = úmido).
 
 ## Publicação
 
