@@ -3,11 +3,14 @@ import json
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Any
 
 import paho.mqtt.client as mqtt
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+
+from storage import TelemetryStore
 
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("agbot.backend")
@@ -22,9 +25,15 @@ CORS_ORIGINS = [
     ).split(",")
     if origin.strip()
 ]
+DB_PATH = os.getenv("DB_PATH", str(Path(__file__).parent / "data" / "telemetry.db"))
+RETENTION_DAYS = float(os.getenv("HISTORY_RETENTION_DAYS", "7"))
 
 def handle_message(app: FastAPI, payload: dict[str, Any]) -> None:
     app.state.latest_data = payload
+    try:
+        app.state.store.add(payload)
+    except Exception:  # o histórico nunca deve derrubar o stream ao vivo
+        logger.exception("Failed to store telemetry")
     for queue in tuple(app.state.subscribers):
         if queue.full():
             queue.get_nowait()
@@ -34,7 +43,9 @@ def handle_message(app: FastAPI, payload: dict[str, Any]) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.event_loop = asyncio.get_running_loop()
-    app.state.latest_data = None
+    app.state.store = TelemetryStore(DB_PATH, RETENTION_DAYS)
+    app.state.latest_data = app.state.store.latest()
+    logger.info("Telemetry history at %s", DB_PATH)
     app.state.subscribers = set()
     app.state.mqtt_connected = False
 
@@ -82,6 +93,7 @@ async def lifespan(app: FastAPI):
     finally:
         client.disconnect()
         client.loop_stop()
+        app.state.store.close()
 
 
 app = FastAPI(title="AgBot Telemetry API", lifespan=lifespan)
@@ -103,6 +115,15 @@ def health():
 @app.get("/telemetry/latest")
 def get_latest():
     return app.state.latest_data or {}
+
+@app.get("/telemetry/history")
+def get_history(
+    minutes: float = Query(120, gt=0, le=60 * 24 * 30),
+    limit: int = Query(3000, ge=1, le=20000),
+    robot_id: str | None = None,
+):
+    points = app.state.store.history(minutes, limit, robot_id)
+    return {"minutes": minutes, "count": len(points), "points": points}
 
 @app.websocket("/ws/telemetry")
 async def websocket_endpoint(websocket: WebSocket):

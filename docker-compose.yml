@@ -20,6 +20,9 @@ services:
     environment:
       MQTT_BROKER: mqtt-broker
       CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+      DB_PATH: /app/data/telemetry.db
+    volumes:
+      - telemetry-data:/app/data
 
   simulator:
     build: ./backend
@@ -29,6 +32,10 @@ services:
     environment:
       MQTT_BROKER: mqtt-broker
       PYTHONUNBUFFERED: "1"
+      MODULE_ROTATION_S: "60"
     volumes:
       - ./simulation:/simulation:ro
     command: ["python", "/simulation/telemetry_engine.py"]
+
+volumes:
+  telemetry-data:
