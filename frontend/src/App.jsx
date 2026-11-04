@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Map, { Layer, Marker, NavigationControl, ScaleControl, Source } from "react-map-gl/maplibre";
 import { MapContainer, Marker as LeafletMarker, Polygon as LeafletPolygon, Polyline as LeafletPolyline, ScaleControl as LeafletScaleControl, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -28,11 +28,47 @@ function RasterMapRef({ mapRef }) {
   return null;
 }
 
+const field = { latMin: -29.116392, latMax: -29.115946, lngMin: -51.227988, lngMax: -51.224489 };
+const forceDemo = new URLSearchParams(window.location.search).has("demo");
+const staticHost = !["localhost", "127.0.0.1"].includes(window.location.hostname) && !import.meta.env.VITE_WS_URL;
+
+// Gera telemetria localmente, com o mesmo padrão de varredura do simulador Python.
+function createDemoSimulator(onData) {
+  let latitude = -29.116169;
+  let longitude = -51.2245;
+  let lngDir = -1;
+  let latDir = 1;
+  let battery = 100;
+  const rand = (min, max) => Math.round((min + Math.random() * (max - min)) * 100) / 100;
+  function tick() {
+    longitude += lngDir * 0.00004;
+    if (longitude <= field.lngMin || longitude >= field.lngMax) {
+      longitude = Math.min(field.lngMax, Math.max(field.lngMin, longitude));
+      lngDir *= -1;
+      let next = latitude + latDir * 0.00008;
+      if (next > field.latMax || next < field.latMin) { latDir *= -1; next = latitude + latDir * 0.00008; }
+      latitude = next;
+    }
+    battery = Math.max(0, battery - 0.02);
+    onData({
+      robot_id: "agbot_prototipo_v1",
+      timestamp: Math.floor(Date.now() / 1000),
+      location: { latitude: Number(latitude.toFixed(6)), longitude: Number(longitude.toFixed(6)), altitude_m: 750.2 },
+      status: { battery_percent: Number(battery.toFixed(2)), active_module: "M04_MOINHO_ROTATIVO", speed_kmh: rand(1.2, 2.5), e_stop: false },
+      telemetry_m04: { motor_current_amp: rand(12, 24.5), depth_cm: 8, soil_resistance_index: rand(3, 7.5) },
+      environmental: { soil_moisture_percent: rand(28, 42), ambient_temp_c: 21.5 },
+    });
+  }
+  tick();
+  const timer = window.setInterval(tick, 1000);
+  return () => window.clearInterval(timer);
+}
+
 function websocketUrl() {
   const configuredUrl = import.meta.env.VITE_WS_URL;
   if (configuredUrl) return configuredUrl;
   const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${protocol}//${window.location.hostname}:8000/ws/telemetry`;
+  return `${protocol}//${window.location.hostname}:8010/ws/telemetry`;
 }
 
 function formatTime(timestamp) {
@@ -65,8 +101,31 @@ export default function App() {
   const rasterMap = useRef(null);
   const [supportsWebGL2] = useState(() => Boolean(document.createElement("canvas").getContext("webgl2")));
 
+  const handleTelemetry = useCallback((next) => {
+    const latitude = Number(next.location?.latitude);
+    const longitude = Number(next.location?.longitude);
+    setTelemetry(next);
+    if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+      setTrail((points) => {
+        const last = points[points.length - 1];
+        if (last && last[0] === longitude && last[1] === latitude) return points;
+        return [...points, [longitude, latitude]].slice(-maxTrailPoints);
+      });
+    }
+  }, []);
+
   useEffect(() => {
+    if (connection !== "demo") return undefined;
+    return createDemoSimulator(handleTelemetry);
+  }, [connection, handleTelemetry]);
+
+  useEffect(() => {
+    if (forceDemo || staticHost) {
+      setConnection("demo");
+      return undefined;
+    }
     let socket;
+    let failures = 0;
     let reconnectTimer;
     let initialConnectTimer;
     let reconnectDelay = 2500;
@@ -79,21 +138,12 @@ export default function App() {
 
       socket.onopen = () => {
         reconnectDelay = 2500;
+        failures = 0;
         setConnection("connected");
       };
       socket.onmessage = (event) => {
         try {
-          const next = JSON.parse(event.data);
-          const latitude = Number(next.location?.latitude);
-          const longitude = Number(next.location?.longitude);
-          setTelemetry(next);
-          if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
-            setTrail((points) => {
-              const last = points[points.length - 1];
-              if (last && last[0] === longitude && last[1] === latitude) return points;
-              return [...points, [longitude, latitude]].slice(-maxTrailPoints);
-            });
-          }
+          handleTelemetry(JSON.parse(event.data));
         } catch {
           setConnection("error");
         }
@@ -101,6 +151,13 @@ export default function App() {
       socket.onerror = () => setConnection("error");
       socket.onclose = () => {
         if (!disposed) {
+          failures += 1;
+          // Sem backend local após algumas tentativas: cai para o modo demonstração.
+          if (failures >= 3) {
+            disposed = true;
+            setConnection("demo");
+            return;
+          }
           setConnection("reconnecting");
           reconnectTimer = window.setTimeout(connect, reconnectDelay);
           reconnectDelay = Math.min(reconnectDelay * 2, 30000);
@@ -115,7 +172,7 @@ export default function App() {
       window.clearTimeout(reconnectTimer);
       socket?.close();
     };
-  }, []);
+  }, [handleTelemetry]);
 
   const location = telemetry?.location ?? defaultLocation;
   const status = telemetry?.status ?? {};
@@ -131,6 +188,7 @@ export default function App() {
     connecting: "Conectando",
     reconnecting: "Reconectando",
     error: "Instável",
+    demo: "Modo demonstração",
   }[connection];
 
   function centerRobot() {
@@ -146,11 +204,11 @@ export default function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <a className="brand" href="#inicio" aria-label="AgBot, início">
+        <a className="brand" href={import.meta.env.DEV ? "#inicio" : "../index.html"} aria-label="Terra Sana, voltar ao site">
           <span className="brand-mark"><Bot size={21} strokeWidth={1.8} /></span>
-          <span className="brand-name">AG<span>BOT</span><small>FIELD SYSTEMS</small></span>
+          <span className="brand-name">AG<span>BOT</span><small>SISTEMAS DE CAMPO</small></span>
         </a>
-        <div className="topbar-center"><span className="workspace-label">OPERAÇÃO DE CAMPO</span><span className="workspace-divider" /><span className="workspace-location"><MapPin size={14} /> Estr. Ver. Marcial Pisoni, 2448 · Linha 40</span></div>
+        <div className="topbar-center"><span className="workspace-label">OPERAÇÃO DE CAMPO</span><span className="workspace-divider" /><span className="workspace-location"><MapPin size={14} /> Estr. Ver. Marcial Pisoni · Linha 40</span></div>
         <div className={`connection-state ${connection}`}><span className="connection-dot" /><Radio size={15} />{connectionText}</div>
       </header>
 
@@ -167,11 +225,11 @@ export default function App() {
           {supportsWebGL2 ? (
             <Map
               ref={setMap}
-              initialViewState={{ latitude: defaultLocation.latitude, longitude: defaultLocation.longitude, zoom: 16 }}
+              initialViewState={{ bounds: [[field.lngMin, field.latMin], [field.lngMax, field.latMax]], fitBoundsOptions: { padding: { top: 110, bottom: 90, left: 60, right: 80 } } }}
               mapStyle={mapStyle}
               maxPitch={85}
               terrain={viewMode === "3d" ? { source: "terrain-dem", exaggeration: 1.35 } : undefined}
-              attributionControl
+              attributionControl={{ compact: true }}
               reuseMaps
             >
               <Source
@@ -225,13 +283,12 @@ export default function App() {
           <div className="map-overlay map-title"><span className="live-indicator" /> POSIÇÃO DO ROBÔ <span className="map-coordinate">{location.latitude.toFixed(5)}°, {location.longitude.toFixed(5)}°</span></div>
           <button className="map-center" type="button" onClick={centerRobot} aria-label="Centralizar no robô" title="Centralizar no robô"><Crosshair size={18} /></button>
           <div className="map-legend"><span className="legend-field" /> Limite da propriedade <span className="legend-trail" /> Percurso</div>
-          <div className="map-attribution-note">Mapa © OpenStreetMap · CARTO</div>
         </div>
 
         <aside className="telemetry-panel">
           <div className="robot-card">
             <div className="robot-avatar"><Bot size={24} strokeWidth={1.7} /></div>
-            <div className="robot-identity"><span>UNIDADE MÓVEL</span><h2>AgBot Prototype</h2><small>{telemetry?.robot_id ?? "agbot_prototype_v1"}</small></div>
+            <div className="robot-identity"><span>UNIDADE MÓVEL</span><h2>AgBot Protótipo</h2><small>{telemetry?.robot_id ?? "agbot_prototipo_v1"}</small></div>
             <span className={`robot-state ${status.e_stop ? "alert" : ""}`}><i />{status.e_stop ? "Parado" : "Em operação"}</span>
           </div>
 
@@ -255,11 +312,11 @@ export default function App() {
             <div className="module-details"><span>Profundidade de trabalho</span><b>{motor.depth_cm ?? "--"}<small>{motor.depth_cm == null ? "" : " cm"}</small></b></div>
           </div>
 
-          <div className="panel-footer"><span><MapPin size={13} /> ALTITUDE</span><strong>{location.altitude_m ?? "--"}<small>{location.altitude_m == null ? "" : " m"}</small></strong><span className="footer-divider" /><span className="stream-label"><Radio size={13} /> STREAM WS</span></div>
+          <div className="panel-footer"><span><MapPin size={13} /> ALTITUDE</span><strong>{location.altitude_m ?? "--"}<small>{location.altitude_m == null ? "" : " m"}</small></strong><span className="footer-divider" /><span className="stream-label"><Radio size={13} /> {connection === "demo" ? "SIMULAÇÃO LOCAL" : "STREAM WS"}</span></div>
         </aside>
       </section>
 
-      <footer className="bottom-bar"><span>AGBOT <b>FIELD SYSTEMS</b></span><span>MONITORAMENTO IoT <i /> GIS EM TEMPO REAL</span><button type="button" onClick={() => window.location.reload()} title="Atualizar painel"><RotateCcw size={14} /> ATUALIZAR</button></footer>
+      <footer className="bottom-bar"><span>AGBOT <b>SISTEMAS DE CAMPO</b></span><span>MONITORAMENTO IoT <i /> GIS EM TEMPO REAL</span><button type="button" onClick={() => window.location.reload()} title="Atualizar painel"><RotateCcw size={14} /> ATUALIZAR</button></footer>
     </main>
   );
 }

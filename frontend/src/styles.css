@@ -34,6 +34,8 @@ button { color: inherit; }
 .connection-state { gap: 7px; color: #647160; font-size: 11px; }
 .connection-state.connected { color: #416c41; }
 .connection-state.error, .connection-state.reconnecting { color: #ad5836; }
+.connection-state.demo { color: #8a6a1f; }
+.demo .connection-dot { background: #d6a43a; }
 .connection-dot, .live-indicator, .robot-state i, .module-live i { width: 7px; height: 7px; border-radius: 50%; background: #bd9a46; }
 .connected .connection-dot, .live-indicator, .robot-state i, .module-live i { background: #5f9857; }
 .page-heading { min-height: 115px; display: flex; align-items: center; justify-content: space-between; }
@@ -66,12 +68,12 @@ h1 em { color: var(--green); font-style: normal; }
 .map-title { top: 16px; left: 16px; height: 36px; gap: 8px; padding: 0 11px; border-radius: 3px; color: #53614f; font: 500 9px var(--mono); }
 .live-indicator { width: 6px; height: 6px; box-shadow: 0 0 0 3px #5f98571c; }
 .map-coordinate { padding-left: 9px; border-left: 1px solid #e3e7df; color: #8b9387; font-size: 9px; }
-.map-center { position: absolute; z-index: 2; top: 112px; right: 24px; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #e0e5db; border-radius: 4px; background: #fffefa; color: #576650; cursor: pointer; box-shadow: 0 2px 8px #34422e10; }
+.map-center { position: absolute; z-index: 2; top: 140px; right: 24px; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #e0e5db; border-radius: 4px; background: #fffefa; color: #576650; cursor: pointer; box-shadow: 0 2px 8px #34422e10; }
 .map-center:hover { color: var(--green); background: #f5f8f1; }
-.map-legend { position: absolute; z-index: 2; left: 14px; bottom: 24px; display: flex; align-items: center; gap: 7px; padding: 8px 10px; background: #fffefa; border: 1px solid #e5e8df; border-radius: 3px; color: #647060; font-size: 10px; }
+.map-legend { position: absolute; z-index: 2; left: 14px; bottom: 44px; display: flex; align-items: center; gap: 7px; padding: 8px 10px; background: #fffefa; border: 1px solid #e5e8df; border-radius: 3px; color: #647060; font-size: 10px; }
 .legend-field { width: 12px; height: 9px; border: 1px dashed #568044; background: #719c5326; }
 .legend-trail { width: 13px; height: 2px; margin-left: 6px; background: var(--orange); }
-.map-attribution-note { position: absolute; z-index: 2; right: 7px; bottom: 6px; color: #717b71; font-size: 9px; text-shadow: 0 1px 2px white; pointer-events: none; }
+
 .robot-marker { position: relative; z-index: 1; display: grid; width: 36px; height: 36px; place-items: center; border: 2px solid #fff; border-radius: 50% 50% 50% 4px; background: var(--orange); color: white; transform: rotate(-45deg); box-shadow: 0 2px 8px #26331f54; }
 .robot-marker svg { transform: rotate(45deg); }
 .marker-pulse { position: absolute; inset: -8px; border: 1px solid #d4673e65; border-radius: 50%; animation: pulse 2s ease-out infinite; }
