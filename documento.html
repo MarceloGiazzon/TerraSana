@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#173c2c">
+    <meta name="description" content="Documentação do projeto Terra Sana: plano diretor, especificações técnicas e fichas dos módulos AgBot.">
+    <title>Terra Sana | Documentação</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" defer></script>
+    <script src="docs.js" defer></script>
+  </head>
+  <body class="module-page doc-page">
+    <header class="site-header module-site-header">
+      <a class="brand" href="index.html" aria-label="Terra Sana, início"><span class="brand-mark" aria-hidden="true">T</span><span>TERRA SANA<span class="brand-period">.</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Abrir menu"><span></span><span></span></button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Navegação principal">
+        <a href="index.html#modulos">Módulos</a>
+        <a href="painel/">Painel ao vivo</a>
+        <a class="nav-cta" href="index.html">Projeto Terra Sana <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main class="doc-layout">
+      <aside class="doc-sidebar" aria-label="Documentos do projeto">
+        <p class="doc-sidebar-title">Visão e estratégia</p>
+        <nav class="doc-nav" data-group="visao"></nav>
+        <p class="doc-sidebar-title">Fichas dos módulos</p>
+        <nav class="doc-nav" data-group="modulos"></nav>
+      </aside>
+      <article class="doc-article">
+        <div class="doc-meta"><span class="doc-kicker" id="doc-kicker">Documentação</span><a id="doc-raw" href="#">Ver arquivo-fonte (.md)</a></div>
+        <div class="doc-body" id="doc-body" aria-live="polite"><p class="doc-loading">Carregando documento…</p></div>
+      </article>
+    </main>
+
+    <footer class="module-page-footer"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">T</span><span>TERRA SANA<span class="brand-period">.</span></span></a><a href="#">Voltar ao topo ↑</a></footer>
+  </body>
+</html>
