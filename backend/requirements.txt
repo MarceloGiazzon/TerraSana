@@ -1,6 +1,3 @@
-fastapi
-uvicorn
-websockets
-paho-mqtt
-shapely
-geojson
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30
+paho-mqtt>=2.1,<3

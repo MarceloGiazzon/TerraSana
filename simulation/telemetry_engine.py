@@ -1,12 +1,14 @@
-import time
 import json
+import os
 import random
+import time
+
 import paho.mqtt.client as mqtt
 
-# Configurações do Broker MQTT
-BROKER = "broker.emqx.io"
-PORT = 1883
-TOPIC = "agbot/linha30/telemetry"
+# Configurações do Broker MQTT (sobrescrevíveis por variáveis de ambiente)
+BROKER = os.getenv("MQTT_BROKER", "broker.emqx.io")
+PORT = int(os.getenv("MQTT_PORT", "1883"))
+TOPIC = os.getenv("MQTT_TOPIC", "agbot/linha30/telemetry")
 
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
@@ -17,6 +19,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
 client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
 client.connect(BROKER, PORT, 60)
+client.loop_start()
 
 # Inicia alguns metros dentro do terreno, a partir do acesso pela estrada.
 FIELD_LAT_MIN = -29.116392
@@ -47,7 +50,7 @@ try:
         battery_soc = max(0, battery_soc - 0.005)
         
         payload = {
-            "robot_id": "agbot_prototype_v1",
+            "robot_id": "agbot_prototipo_v1",
             "timestamp": int(time.time()),
             "location": {
                 "latitude": round(current_lat, 6),
@@ -56,7 +59,7 @@ try:
             },
             "status": {
                 "battery_percent": round(battery_soc, 2),
-                "active_module": "M04_ROTARY_TILLER",
+                "active_module": "M04_MOINHO_ROTATIVO",
                 "speed_kmh": round(random.uniform(1.2, 2.5), 2),
                 "e_stop": False
             },
@@ -81,4 +84,5 @@ try:
         time.sleep(2)
 except KeyboardInterrupt:
     print("Simulador encerrado.")
+    client.loop_stop()
     client.disconnect()
