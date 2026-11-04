@@ -1,6 +1,6 @@
 // Fontes de telemetria do painel: backend AgHub (WebSocket + histórico em SQLite)
 // e broker MQTT público (o ESP32 no Wokwi publica direto nele).
-import { field } from "./demo.js";
+import { bounds as field } from "./farm.js";
 
 export const MQTT_WS_URL = import.meta.env.VITE_MQTT_WS_URL || "wss://broker.emqx.io:8084/mqtt";
 export const MQTT_TOPIC = import.meta.env.VITE_MQTT_TOPIC || "agbot/linha30/telemetry";

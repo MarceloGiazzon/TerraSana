@@ -36,6 +36,7 @@ export const MODULES = [
     fullName: "Análise de solo profundo",
     icon: FlaskConical,
     metrics: [
+      { key: "samples_collected", label: "Amostras coletadas", unit: "", icon: FlaskConical },
       { key: "nitrogen_mg_kg", label: "Nitrogênio (N)", unit: " mg/kg", icon: FlaskConical },
       { key: "phosphorus_mg_kg", label: "Fósforo (P)", unit: " mg/kg", icon: FlaskConical },
       { key: "potassium_mg_kg", label: "Potássio (K)", unit: " mg/kg", icon: FlaskConical },

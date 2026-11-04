@@ -25,7 +25,7 @@ function niceDomain(values, fallback) {
  * Gráfico de linha de uma série, com linha de referência e tooltip.
  * points: [{ t: ms, v: number }]
  */
-export default function HistoryChart({ title, unit, points, color, domain, digits = 1 }) {
+export default function HistoryChart({ title, unit, points, color, domain, digits = 1, tStart, tEnd, limits }) {
   const format = useMemo(() => numberFormat(digits), [digits]);
   const show = (value) => format.format(value);
   const wrapRef = useRef(null);
@@ -42,9 +42,12 @@ export default function HistoryChart({ title, unit, points, color, domain, digit
   }, [showTable]);
 
   const data = useMemo(() => points.filter((point) => Number.isFinite(point.v) && Number.isFinite(point.t)), [points]);
-  const [yMin, yMax] = useMemo(() => niceDomain(data.map((point) => point.v), domain), [data, domain]);
-  const tMin = data.length ? data[0].t : Date.now() - 60_000;
-  const tMax = data.length > 1 ? data[data.length - 1].t : tMin + 60_000;
+  const [yMin, yMax] = useMemo(() => {
+    const [lo, hi] = niceDomain(data.map((point) => point.v), domain);
+    return limits ? [Math.max(limits[0], lo), Math.min(limits[1], hi)] : [lo, hi];
+  }, [data, domain, limits]);
+  const tMin = tStart ?? (data.length ? data[0].t : Date.now() - 60_000);
+  const tMax = tEnd ?? (data.length > 1 ? data[data.length - 1].t : tMin + 60_000);
   const innerW = width - PAD.left - PAD.right;
   const innerH = HEIGHT - PAD.top - PAD.bottom;
   const x = (t) => PAD.left + ((t - tMin) / (tMax - tMin || 1)) * innerW;
@@ -58,7 +61,7 @@ export default function HistoryChart({ title, unit, points, color, domain, digit
     });
     return d;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, width, yMin, yMax]);
+  }, [data, width, yMin, yMax, tMin, tMax]);
 
   const ticks = [yMin, (yMin + yMax) / 2, yMax];
   const current = data[data.length - 1];
@@ -133,7 +136,7 @@ export default function HistoryChart({ title, unit, points, color, domain, digit
                 <text className="history-axis" x={PAD.left - 6} y={y(tick) + 3} textAnchor="end">{Math.round(tick)}</text>
               </g>
             ))}
-            {data.length > 1 && (
+            {(data.length > 1 || tEnd) && (
               <>
                 <text className="history-axis" x={PAD.left} y={HEIGHT - 6}>{timeFormat.format(tMin)}</text>
                 <text className="history-axis" x={width - PAD.right} y={HEIGHT - 6} textAnchor="end">{timeFormat.format(tMax)}</text>
