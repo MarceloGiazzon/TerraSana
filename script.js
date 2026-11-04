@@ -1,14 +1,14 @@
 const menuToggle = document.querySelector(".menu-toggle");
 const primaryNav = document.querySelector(".primary-nav");
 
-menuToggle.addEventListener("click", () => {
+menuToggle?.addEventListener("click", () => {
   const isExpanded = menuToggle.getAttribute("aria-expanded") === "true";
   menuToggle.setAttribute("aria-expanded", String(!isExpanded));
   menuToggle.setAttribute("aria-label", isExpanded ? "Abrir menu" : "Fechar menu");
   primaryNav.classList.toggle("is-open", !isExpanded);
 });
 
-primaryNav.addEventListener("click", (event) => {
+primaryNav?.addEventListener("click", (event) => {
   if (event.target.closest("a")) {
     menuToggle.setAttribute("aria-expanded", "false");
     menuToggle.setAttribute("aria-label", "Abrir menu");
@@ -18,6 +18,7 @@ primaryNav.addEventListener("click", (event) => {
 
 const filterButtons = document.querySelectorAll(".filter-button");
 const moduleCards = document.querySelectorAll(".module-card");
+// O card "módulo-cta" (acesso ao painel) aparece só em "Todos" e não entra na contagem.
 const moduleCount = document.querySelector(".module-count");
 
 filterButtons.forEach((button) => {
@@ -32,9 +33,10 @@ filterButtons.forEach((button) => {
     });
 
     moduleCards.forEach((card) => {
+      const isCta = card.classList.contains("module-cta");
       const isVisible = selectedFilter === "all" || card.dataset.category === selectedFilter;
       card.hidden = !isVisible;
-      if (isVisible) visibleCount += 1;
+      if (isVisible && !isCta) visibleCount += 1;
     });
 
     moduleCount.textContent = `Exibindo ${visibleCount} ${visibleCount === 1 ? "módulo" : "módulos"}`;

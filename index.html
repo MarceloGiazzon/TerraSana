@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#173c2c">
     <meta name="description" content="Terra Sana: uma iniciativa de robótica agrícola aberta, modular e pensada para fortalecer a agricultura familiar e agroecológica.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Terra Sana | Plataforma AgBot">
+    <meta property="og:description" content="Robótica agrícola aberta, modular e solar para a agricultura familiar e agroecológica.">
+    <meta property="og:image" content="assets/painel-telemetria.png">
+    <meta name="twitter:card" content="summary_large_image">
     <title>Terra Sana | Plataforma AgBot</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,8 +30,9 @@
       <nav class="primary-nav" id="primary-nav" aria-label="Navegação principal">
         <a href="#sistema">O sistema</a>
         <a href="#modulos">Módulos</a>
+        <a href="#software">Software</a>
         <a href="#principios">Princípios</a>
-        <a class="nav-cta" href="Visao/documento_master_agbot.md">Conheça o projeto <span aria-hidden="true">↗</span></a>
+        <a class="nav-cta" href="documento.html?doc=master">Conheça o projeto <span aria-hidden="true">↗</span></a>
       </nav>
     </header>
 
@@ -75,7 +82,7 @@
             <article class="system-point reveal"><span class="point-index">01</span><div><h3>O AgBot trabalha</h3><p>Uma base terrestre elétrica recebe ferramentas de engate rápido para diferentes tarefas no campo.</p></div><span class="point-arrow" aria-hidden="true">↗</span></article>
             <article class="system-point reveal"><span class="point-index">02</span><div><h3>O Infodrone observa</h3><p>Uma unidade aérea de reconhecimento amplia a leitura da propriedade e apoia o planejamento das missões.</p></div><span class="point-arrow" aria-hidden="true">↗</span></article>
             <article class="system-point reveal"><span class="point-index">03</span><div><h3>O AgHub conecta</h3><p>Uma estação local reúne comunicação, processamento na borda e apoio à operação da frota.</p></div><span class="point-arrow" aria-hidden="true">↗</span></article>
-            <a class="inline-link" href="Visao/agbot_opensource_technical_specifications.md">Ver arquitetura técnica <span aria-hidden="true">→</span></a>
+            <a class="inline-link" href="documento.html?doc=tecnica">Ver arquitetura técnica <span aria-hidden="true">→</span></a>
           </div>
         </div>
       </section>
@@ -137,8 +144,37 @@
             <p>Monitoramento de microclima e controle ambiental para estufas e fungicultura.</p>
             <a href="modulos/modulo-07.html" aria-label="Conhecer o módulo Climatização e Cogumelos">Conhecer módulo <span aria-hidden="true">↗</span></a>
           </article>
+          <article class="module-card module-cta" data-category="all">
+            <div class="module-card-top"><span class="module-number">PLATAFORMA / SOFTWARE</span><span class="module-mark mark-live" aria-hidden="true"><i></i></span></div>
+            <h3>Veja o AgBot<br>em operação</h3>
+            <p>Painel de telemetria com mapa da propriedade, bateria e dados do módulo ativo em tempo real.</p>
+            <a href="painel/">Abrir painel ao vivo <span aria-hidden="true">↗</span></a>
+          </article>
         </div>
         <p class="module-count" aria-live="polite">Exibindo 7 módulos</p>
+      </section>
+
+      <section class="software-section section-pad" id="software">
+        <div class="software-copy reveal">
+          <p class="eyebrow eyebrow-dark">03 — Software em funcionamento</p>
+          <h2>Do sensor<br>ao mapa, <em>em<br>tempo real.</em></h2>
+          <p>O protótipo de software já integra a cadeia completa de dados: o robô publica telemetria via MQTT, o AgHub redistribui por WebSocket e o painel exibe posição, percurso e sensores sobre o limite georreferenciado da propriedade.</p>
+          <ol class="pipeline" aria-label="Fluxo de dados">
+            <li><span>01</span><div><strong>ESP32 · simulador</strong><small>Telemetria JSON a cada 2 s</small></div></li>
+            <li><span>02</span><div><strong>MQTT</strong><small>agbot/linha30/telemetry</small></div></li>
+            <li><span>03</span><div><strong>AgHub · FastAPI</strong><small>/ws/telemetry · /health</small></div></li>
+            <li><span>04</span><div><strong>Painel · React + MapLibre</strong><small>Mapa 2D/3D, bateria, módulo ativo</small></div></li>
+          </ol>
+          <div class="software-actions">
+            <a class="button button-dark" href="painel/">Abrir painel ao vivo <span aria-hidden="true">↗</span></a>
+            <a class="inline-link" href="https://github.com/MarceloGiazzon/TerraSana">Código-fonte no GitHub <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <figure class="software-shot reveal">
+          <div class="shot-chrome" aria-hidden="true"><i></i><i></i><i></i><span>painel · monitoramento ao vivo</span></div>
+          <a href="painel/"><img src="assets/painel-telemetria.png" alt="Painel AgBot mostrando o robô percorrendo faixas dentro do limite da propriedade, com bateria, velocidade, corrente e umidade do solo" loading="lazy" width="1440" height="900"></a>
+          <figcaption>Captura do painel em modo demonstração. Sem backend, a telemetria é simulada no próprio navegador.</figcaption>
+        </figure>
       </section>
 
       <section class="principles-section" id="principios">
@@ -147,7 +183,7 @@
           <span class="photo-note">TECNOLOGIA COM RAIZ.</span>
         </div>
         <div class="principles-copy">
-          <p class="eyebrow">03 — Mais que automação</p>
+          <p class="eyebrow">04 — Mais que automação</p>
           <h2>Inovação que<br>fica <em>nas mãos<br>de quem planta.</em></h2>
           <p class="principles-intro">O projeto parte de uma ideia simples: a tecnologia rural deve poder ser compreendida, consertada e aprimorada por quem a utiliza.</p>
           <div class="principle-list">
@@ -155,14 +191,17 @@
             <div><span>02</span><p><strong>Reparabilidade local</strong><br>Componentes acessíveis e manutenção próxima.</p></div>
             <div><span>03</span><p><strong>Força cooperativa</strong><br>Máquinas e inteligência que podem ser compartilhadas.</p></div>
           </div>
-          <a class="button button-outline" href="Visao/apresenta_o_executiva_agbot.md">Ler visão do projeto <span aria-hidden="true">↗</span></a>
+          <a class="button button-outline" href="documento.html?doc=executiva">Ler visão do projeto <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
       <section class="closing-section">
         <p class="eyebrow eyebrow-dark">TERRA SANA · PLATAFORMA AGBOT</p>
         <h2>O futuro do campo<br>também pode ser <em>feito em comunidade.</em></h2>
-        <a class="button button-dark" href="Visao/documento_master_agbot.md">Acessar o plano diretor <span aria-hidden="true">↗</span></a>
+        <div class="closing-actions">
+          <a class="button button-dark" href="documento.html?doc=master">Acessar o plano diretor <span aria-hidden="true">↗</span></a>
+          <a class="inline-link" href="documento.html?doc=finep">Projeto executivo FINEP <span aria-hidden="true">→</span></a>
+        </div>
         <span class="closing-orbit orbit-a" aria-hidden="true"></span><span class="closing-orbit orbit-b" aria-hidden="true"></span>
       </section>
     </main>
@@ -170,8 +209,8 @@
     <footer class="site-footer">
       <a class="brand footer-brand" href="#inicio" aria-label="Terra Sana, início"><span class="brand-mark" aria-hidden="true">T</span><span>TERRA SANA<span class="brand-period">.</span></span></a>
       <p>Plataforma AgBot · Robótica aberta para cultivar autonomia.</p>
-      <a href="#inicio">Voltar ao topo ↑</a>
-      <small>© 2026 Terra Sana · Projeto em desenvolvimento</small>
+      <nav class="footer-links" aria-label="Links do rodapé"><a href="documento.html">Documentação</a><a href="painel/">Painel</a><a href="https://github.com/MarceloGiazzon/TerraSana">GitHub</a><a href="#inicio">Voltar ao topo ↑</a></nav>
+      <small>© 2026 Terra Sana · Projeto em desenvolvimento · Hardware e software abertos</small>
     </footer>
   </body>
 </html>
