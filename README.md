@@ -155,9 +155,19 @@ O seletor no topo do painel escolhe de onde vem a telemetria (também pela URL, 
 | :--- | :--- | :--- |
 | **AgHub** (só local) | Backend em `ws://localhost:8010` | Gravado em SQLite; o painel carrega as últimas 2 horas ao abrir |
 | **ESP32** | Broker MQTT público via WebSocket, onde o firmware no Wokwi publica | Desde que o painel foi aberto |
-| **Demo** | Simulação no navegador (padrão no site publicado) | Começa com 10 minutos de operação simulada |
+| **Demo** | Um dia de operação simulado no navegador (padrão no site publicado) | Agenda do dia com retrospectiva de cada tarefa concluída |
 
-No modo **Demo**, os botões dos módulos acoplam outra ferramenta na hora. Nas outras fontes, eles só mostram qual módulo está ativo.
+O AgBot leva **um módulo por vez**: a faixa de módulos mostra o acoplado, o próximo da agenda e os demais bloqueados.
+
+### Modo demonstração: um dia na propriedade
+
+O modo **Demo** simula um dia de trabalho com três agentes ativos ao mesmo tempo: o **AgHub** (sempre ligado), o **Infodrone** e o **AgBot** com um módulo acoplado.
+
+- **Agenda do dia:** uma linha do tempo por agente e listas *Agora*, *A seguir* e *Concluídas* (por exemplo: roçando o gramado agora, depois irrigação da horta e climatização dos cogumelos).
+- **Retrospectiva da atividade:** clicar numa tarefa concluída mostra o trabalho do início ao fim, com barra de tempo e reprodução em 1x, 2x, 4x, 8x, 16x ou 32x. O mapa, os agentes, o módulo e os gráficos acompanham o horário da reprodução.
+- **Percursos coerentes com cada serviço:** faixas de roçada no gramado, linhas de canteiro na horta, paradas de amostragem do solo, árvores do pomar, corredor da câmara de cogumelos e voos do drone (mapeamento NDVI e nebulização das toras de shiitake).
+
+A simulação é determinística em função do horário ([`simulate.js`](frontend/src/simulate.js)): o ao vivo e a retrospectiva usam o mesmo cálculo. A agenda fica em [`plan.js`](frontend/src/plan.js).
 
 O painel publicado também recebe o ESP32: abra [o painel no modo ESP32](https://marcelogiazzon.github.io/TerraSana/painel/?fonte=esp32), inicie a simulação no Wokwi (veja o [firmware](firmware/README.md)) e as leituras aparecem no mapa.
 
@@ -190,7 +200,7 @@ As métricas exibidas de cada módulo ficam em [`frontend/src/modules.js`](front
 
 - O modo 3D usa MapLibre com elevação Terrarium e requer WebGL2.
 - Sem WebGL2, o painel usa Leaflet com tiles raster do OpenStreetMap em 2D.
-- O limite da propriedade vem de [`data/area.geojson`](data/area.geojson).
+- O contorno da propriedade segue a medição original ([`data/area-medicao.png`](data/area-medicao.png)): uma faixa de ~372 m × 57 m, levemente inclinada, com o portão junto à estrada e o açude a oeste. As zonas (sede, gramado, horta em 6 talhões, pomar, mata úmida e açude) ficam em [`frontend/src/farm.js`](frontend/src/farm.js), e o contorno exportado em [`data/area.geojson`](data/area.geojson).
 - A camada **Umidade** agrupa as leituras em células de ~4 m e mostra a média de cada uma, numa escala de um só tom (claro = seco, escuro = úmido).
 
 ## Publicação
