@@ -1,0 +1,17 @@
+# Dependências e builds
+node_modules/
+frontend/dist/
+painel/
+.vite/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+*.log
+.env
