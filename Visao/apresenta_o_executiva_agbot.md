@@ -8,7 +8,7 @@
 
 O **AgBot** é um ecossistema robótico agrícola, autônomo, modular e de tração por esteiras alimentado por **energia solar**. Muito além de um hardware individual, o projeto foi concebido como uma **Plataforma Tecnológica e Social em Rede** focada na democratização da automação no campo.
 
-Designed for smallholders, agroecological farms, traditional communities, and agrarian settlement cooperatives, the project addresses three structural bottlenecks:
+Pensado para pequenos produtores, propriedades agroecológicas, comunidades tradicionais e cooperativas de assentamentos da reforma agrária, o projeto enfrenta três gargalos estruturais:
 
 1. **Inversão Demográfica e Penosidade**: O acelerado envelhecimento da população rural (idade média superior a 52 anos no RS) e a escassez severa de mão de obra braçal para roçada e manejo orgânico.
 2. **Barreira Financeira do Agrotech Tradicional**: Máquinas importadas e ecossistemas proprietários custam acima de R\$ 300.000,00, aprisionando o produtor em contratos abusivos e peças de reposição inacessíveis.
@@ -18,7 +18,7 @@ Designed for smallholders, agroecological farms, traditional communities, and ag
 
 ## 2. O Pilar Open-Source: Justificativas Técnicas e Sociais
 
-A opção pela arquitetura **Open-Source** (código, projetos mecânicos CAD, esquemáticos eletrônicos KiCAD e firmwares abertos) não é um detalhe metodológico, mas o **coracional estratégico do projeto**.
+A opção pela arquitetura **Open-Source** (código, projetos mecânicos CAD, esquemáticos eletrônicos KiCAD e firmwares abertos) não é um detalhe metodológico, mas o **núcleo estratégico do projeto**.
 
 ```
                    O TRIÂNGULO DA SOBERANIA TECNOLÓGICA OPEN-SOURCE

@@ -1,218 +1,218 @@
-# AgBot OpenSource - Technical Specifications & Hardware Architecture
-**Project:** Autonomous Agricultural Ecosystem (Linha 30 - Caxias do Sul / RS)  
-**System Architecture:** Multi-Agent System (AgBot Ground Worker + Infodrone Scout + AgHub AC Central Dock)  
-**Document Version:** 2.1 (Expanded with Mushroom Module 07, Drone Aerial Mist Payload, and 16m² Chamber Plan)
+# AgBot OpenSource - Especificações Técnicas e Arquitetura de Hardware
+**Projeto:** Ecossistema Agrícola Autônomo (Linha 30 - Caxias do Sul / RS)  
+**Arquitetura do sistema:** Sistema Multiagente (AgBot de solo + Infodrone de reconhecimento + Estação Central AgHub AC)  
+**Versão do documento:** 2.1 (ampliada com o Módulo 07 de cogumelos, a carga de nebulização aérea do drone e a planta da câmara de 16 m²)
 
 ---
 
-## 1. System Overview & Multi-Agent Architecture
+## 1. Visão geral e arquitetura multiagente
 
-The ecosystem operates as a distributed multi-agent system (MAS) configured for intensive agroecological production, lawn management, orchard monitoring, and mushroom cultivation across $10,200\text{ m}^2$ of vegetable plots, $2,000\text{ m}^2$ of lawn, $600\text{ m}^2$ of humid forest (log cultivation), and a $16\text{ m}^2$ indoor mushroom chamber.
+O ecossistema opera como um sistema multiagente (SMA) distribuído, configurado para produção agroecológica intensiva, manejo de gramado, monitoramento de pomar e cultivo de cogumelos em $10.200\text{ m}^2$ de canteiros de hortaliças, $2.000\text{ m}^2$ de gramado, $600\text{ m}^2$ de mata úmida (cultivo em toras) e uma câmara interna de cogumelos de $16\text{ m}^2$.
 
 ```
                             ┌─────────────────────────────────┐
-                            │    AgHub AC (Central Station)   │
-                            │  220V Grid / Raspberry Pi 5     │
+                            │  AgHub AC (Estação Central)     │
+                            │  Rede 220V / Raspberry Pi 5     │
                             └────────────────┬────────────────┘
                                              │
                        ┌─────────────────────┴─────────────────────┐
                        ▼                                           ▼
           ┌─────────────────────────┐                 ┌─────────────────────────┐
-          │  AgBot (Ground Worker)  │ ◄── ESP-NOW ──► │ Infodrone (Air Scout)   │
-          │  RTK / 4x4 / Modules 1-7│    / Wi-Fi 6    │ F405 / Camera / Mist    │
+          │  AgBot (Robô de solo)   │ ◄── ESP-NOW ──► │ Infodrone (Aéreo)       │
+          │  RTK / 4x4 / Módulos 1-7│    / Wi-Fi 6    │ F405 / Câmera / Névoa   │
           └─────────────────────────┘                 └─────────────────────────┘
 ```
 
 ---
 
-## 2. Full Bill of Materials (BOM) & Component Costs
+## 2. Lista completa de materiais (BOM) e custos
 
-### 2.1 AgBot Core (Ground Worker Unit)
+### 2.1 Núcleo do AgBot (unidade de solo)
 
-| Subsystem | Component Description | Specifications | Qty | Cost (BRL) | Purpose / Explanation |
+| Subsistema | Componente | Especificações | Qtd | Custo (R$) | Finalidade |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| **Chassis & Frame** | Custom Aluminum 6061-T6 + Stainless Steel Joints | Modular 800mm x 600mm chassis, IP65 sealed electronics bay. | 1 | R$ 2,800.00 | Provides structural rigidity and corrosion resistance against wet soil and compost. |
-| **Drivetrain** | 24V DC Planetary Gear Motors (250W each) | High-torque 1:60 ratio, integrated quadrature encoders (1024 CPR). | 4 | R$ 3,200.00 | Delivers 4x4 differential drive capability across muddy terrain and steep inclines. |
-| **Motor Drivers** | Dual SmartDrive SDS2440 or Sabertooth 2x60A | 60A continuous output per channel with regenerative braking and overcurrent protection. | 2 | R$ 1,600.00 | Controls traction motors via PWM/UART with closed-loop speed regulation. |
-| **Main Processing** | Teensy 4.1 + ESP32-S3 Dual MCU Board | Teensy (Cortex-M7 @ 600MHz) for real-time control; ESP32-S3 for Wi-Fi/BLE & CAN. | 1 | R$ 650.00 | Low-level motor control, safety watchdog, sensor fusion, and wireless telemetry. |
-| **Navigation & RTK** | u-blox ZED-F9P Multi-Band GNSS Receiver | Centimeter-level RTK GNSS + Helical High-Gain Antenna (L1/L2). | 1 | R$ 1,800.00 | Provides 1cm to 2cm positioning accuracy for autonomous row navigation without fences. |
-| **IMU & Attitude** | BNO085 9-DOF System-in-Package | Integrated accelerometer, gyroscope, magnetometer with onboard sensor fusion. | 1 | R$ 220.00 | Maintains orientation, pitch, roll, and dead-reckoning when GNSS signals are occluded. |
-| **Power System** | LiFePO4 Battery Pack 24V 30Ah | 8S LiFePO4 cells with 60A Smart BMS (Bluetooth telemetry). | 1 | R$ 2,600.00 | Provides 2.5 to 4 hours of continuous operation per charge cycle. |
-| **Safety & Obstacles** | Ultrasonic Transducers + Solid-State LiDaR | 4x Waterproof Ultrasonic Sensors (AJ-SR04M) + Benewake TF-Luna LiDaR. | 1 | R$ 780.00 | Emergency braking, close-range collision avoidance, and cliff detection. |
-| **Module Coupling** | Quick-Latch Magnetic & CAN Interface | Heavy-duty quick release pins, 24V power bus bar, and 4-pin CAN bus socket. | 1 | R$ 850.00 | Enables tool-less swapping of Modules 01 through 07 in under 60 seconds. |
-| **SUBTOTAL (AGBOT CORE)** | | | | **R$ 14,500.00** | |
+| **Chassi e estrutura** | Alumínio 6061-T6 sob medida + juntas de aço inox | Chassi modular de 800 mm x 600 mm, compartimento eletrônico vedado IP65. | 1 | R$ 2.800,00 | Garante rigidez estrutural e resistência à corrosão por solo úmido e composto. |
+| **Tração** | Motorredutores planetários 24V CC (250 W cada) | Alto torque, redução 1:60, encoders em quadratura integrados (1024 CPR). | 4 | R$ 3.200,00 | Tração diferencial 4x4 em terreno enlameado e aclives acentuados. |
+| **Drivers de motor** | Dual SmartDrive SDS2440 ou Sabertooth 2x60A | 60 A contínuos por canal, com frenagem regenerativa e proteção contra sobrecorrente. | 2 | R$ 1.600,00 | Controla os motores de tração via PWM/UART com regulação de velocidade em malha fechada. |
+| **Processamento principal** | Placa dual MCU Teensy 4.1 + ESP32-S3 | Teensy (Cortex-M7 a 600 MHz) para controle em tempo real; ESP32-S3 para Wi-Fi/BLE e CAN. | 1 | R$ 650,00 | Controle de motores, watchdog de segurança, fusão de sensores e telemetria sem fio. |
+| **Navegação e RTK** | Receptor GNSS multibanda u-blox ZED-F9P | GNSS RTK com precisão centimétrica + antena helicoidal de alto ganho (L1/L2). | 1 | R$ 1.800,00 | Posicionamento com precisão de 1 a 2 cm para navegar entre as linhas sem cercas. |
+| **IMU e atitude** | BNO085 9-DOF System-in-Package | Acelerômetro, giroscópio e magnetômetro com fusão de sensores embarcada. | 1 | R$ 220,00 | Mantém orientação, arfagem, rolagem e navegação estimada quando o sinal GNSS é obstruído. |
+| **Energia** | Bateria LiFePO4 24V 30Ah | Células LiFePO4 8S com BMS inteligente de 60 A (telemetria Bluetooth). | 1 | R$ 2.600,00 | De 2,5 a 4 horas de operação contínua por ciclo de carga. |
+| **Segurança e obstáculos** | Transdutores ultrassônicos + LiDAR de estado sólido | 4 sensores ultrassônicos à prova d'água (AJ-SR04M) + LiDAR Benewake TF-Luna. | 1 | R$ 780,00 | Frenagem de emergência, desvio de colisões a curta distância e detecção de desníveis. |
+| **Acoplamento de módulos** | Engate rápido magnético e interface CAN | Pinos de liberação rápida reforçados, barramento de energia 24V e soquete CAN de 4 pinos. | 1 | R$ 850,00 | Troca dos Módulos 01 a 07 sem ferramentas, em menos de 60 segundos. |
+| **SUBTOTAL (NÚCLEO AGBOT)** | | | | **R$ 14.500,00** | |
 
 ---
 
-### 2.2 Infodrone (Aerial Scout Unit)
+### 2.2 Infodrone (unidade aérea de reconhecimento)
 
-| Component | Specifications | Qty | Cost (BRL) | Purpose / Explanation |
+| Componente | Especificações | Qtd | Custo (R$) | Finalidade |
 | :--- | :--- | :---: | :---: | :--- |
-| **Frame** | 7-inch Carbon Fiber Quadcopter Frame (330mm wheel base) | 1 | R$ 420.00 | Lightweight, durable frame capable of carrying payload and surviving forest conditions. |
-| **Flight Controller** | SpeedyBee F405 V3 30x30 Stack | 1 | R$ 680.00 | Runs ArduPilot / PX4 firmware for autonomous waypoints and precision landing. |
-| **Motors & ESCs** | 2807 1300KV Brushless Motors + 50A 4-in-1 ESC | 4 | R$ 1,100.00 | High-thrust configuration capable of lifting a 1.5kg payload. |
-| **Sensors & Vision** | OAK-D Lite Spatial AI Camera (RGB + Stereo Depth) | 1 | R$ 1,450.00 | Onboard neural network processing for NDVI estimation and thermal hotspot alignment. |
-| **Telemetry & GPS** | M10-5883 GNSS + Compass Module + ESP32 Wi-Fi Telemetry | 1 | R$ 380.00 | Precise positioning and high-speed data transmission to AgHub and AgBot. |
-| **Power** | 4S LiPo Battery 5200mAh 80C (Set of 2) | 2 | R$ 820.00 | Provides 18–22 minutes of scouting flight time per pack. |
-| **Forest Payload** | Mini Aerial Mist Dispenser (1.5L Tank + 12V Micro Pump + Nozzle) | 1 | R$ 1,950.00 | Borne payload for spraying micro-droplets on Shiitake logs in dense 600m² forest areas. |
-| **SUBTOTAL (INFODRONE)** | | | **R$ 6,800.00** | |
+| **Estrutura** | Quadricóptero de fibra de carbono 7 polegadas (entre-eixos de 330 mm) | 1 | R$ 420,00 | Estrutura leve e resistente, capaz de levar carga e suportar as condições da mata. |
+| **Controladora de voo** | Stack SpeedyBee F405 V3 30x30 | 1 | R$ 680,00 | Roda firmware ArduPilot / PX4 para rotas autônomas e pouso de precisão. |
+| **Motores e ESCs** | Motores brushless 2807 1300KV + ESC 4 em 1 de 50 A | 4 | R$ 1.100,00 | Configuração de alto empuxo, capaz de erguer 1,5 kg de carga. |
+| **Sensores e visão** | Câmera OAK-D Lite Spatial AI (RGB + profundidade estéreo) | 1 | R$ 1.450,00 | Rede neural embarcada para estimativa de NDVI e alinhamento de pontos térmicos. |
+| **Telemetria e GPS** | GNSS M10-5883 + bússola + telemetria Wi-Fi ESP32 | 1 | R$ 380,00 | Posicionamento preciso e transmissão de dados em alta velocidade para o AgHub e o AgBot. |
+| **Energia** | Bateria LiPo 4S 5200 mAh 80C (par) | 2 | R$ 820,00 | De 18 a 22 minutos de voo de reconhecimento por bateria. |
+| **Carga para a mata** | Mini nebulizador aéreo (tanque de 1,5 L + microbomba 12V + bico) | 1 | R$ 1.950,00 | Carga embarcada para borrifar microgotas nas toras de shiitake na área de mata densa de 600 m². |
+| **SUBTOTAL (INFODRONE)** | | | **R$ 6.800,00** | |
 
 ---
 
-### 2.3 AgHub AC (Central Grid Station)
+### 2.3 AgHub AC (estação central ligada à rede)
 
-| Component | Specifications | Qty | Cost (BRL) | Purpose / Explanation |
+| Componente | Especificações | Qtd | Custo (R$) | Finalidade |
 | :--- | :--- | :---: | :---: | :--- |
-| **Main Power Supply** | Mean Well 24V 40A 1000W Industrial PFC Power Supply | 1 | R$ 650.00 | Converts 110V/220V grid AC power to stable 24V DC for chargers and docks. |
-| **AC Protection** | NEMA IP65 Box + DIN Circuit Breakers (16A) + Class II Surge DPS | 1 | R$ 350.00 | Protects base station and docking units from grid voltage spikes and lightning. |
-| **RTK Base Station** | u-blox ZED-F9P Base Kit + High Precision GNSS Survey Antenna | 1 | R$ 1,800.00 | Broadcasts RTCM3 correction data via LoRa/Wi-Fi to AgBot and Infodrone. |
-| **Edge Server** | Raspberry Pi 5 (8GB RAM) + 512GB NVMe SSD + UPS HAT | 1 | R$ 1,200.00 | Runs ROS2 master node, Home Assistant, local AI processing, and mission queues. |
-| **Wireless Gateway** | Outdoor Wi-Fi 6 AP + SX1302 915MHz LoRaWAN Gateway | 1 | R$ 1,100.00 | Provides full wireless telemetry coverage across the entire 12,200m² area. |
-| **Water Supply Node** | 500L Buffer Tank + Float Valve + 12V High-Flow Transfer Pump | 1 | R$ 1,100.00 | Automated refilling station for AgBot Module 05 (Irrigation) and Module 07. |
-| **Silos & Dispensers** | 2x 20L Cronic Silos + NEMA23 Stepper Motor Augers + Load Cells | 2 | R$ 1,400.00 | Automated dispensing of seeds, organic fertilizers, and mycelium substrates. |
-| **Drone Docking Nest** | Retractable Roof Enclosure + Contact Charging Plates + Actuator | 1 | R$ 1,500.00 | Weather-proof housing and automatic contact charging for the Infodrone. |
-| **AgBot Docking Station**| Mechanical Alignment Funnels + Copper Contact Charging Strip | 1 | R$ 900.00 | Guides AgBot to charge secondary/tertiary batteries and refill liquid tanks. |
-| **Enclosure Housing** | Powder-Coated Aluminum IP65 Cabinet | 1 | R$ 1,500.00 | Houses edge server, power electronics, and charging bays outdoors safely. |
-| **SUBTOTAL (AGHUB AC)** | | | **R$ 11,500.00** | |
+| **Fonte principal** | Fonte industrial Mean Well 24V 40A 1000W com PFC | 1 | R$ 650,00 | Converte a rede de 110V/220V CA em 24V CC estável para carregadores e docas. |
+| **Proteção CA** | Caixa NEMA IP65 + disjuntores DIN (16 A) + DPS classe II | 1 | R$ 350,00 | Protege a estação e as docas contra picos de tensão e descargas atmosféricas. |
+| **Base RTK** | Kit base u-blox ZED-F9P + antena GNSS geodésica de alta precisão | 1 | R$ 1.800,00 | Transmite correções RTCM3 via LoRa/Wi-Fi para o AgBot e o Infodrone. |
+| **Servidor de borda** | Raspberry Pi 5 (8 GB RAM) + SSD NVMe de 512 GB + HAT de nobreak | 1 | R$ 1.200,00 | Roda o nó mestre ROS2, Home Assistant, processamento local de IA e filas de missões. |
+| **Gateway sem fio** | AP Wi-Fi 6 externo + gateway LoRaWAN SX1302 915 MHz | 1 | R$ 1.100,00 | Cobertura completa de telemetria sem fio em toda a área de 12.200 m². |
+| **Ponto de água** | Reservatório pulmão de 500 L + boia + bomba de transferência 12V de alta vazão | 1 | R$ 1.100,00 | Estação de reabastecimento automático do Módulo 05 (Irrigação) e do Módulo 07. |
+| **Silos e dosadores** | 2 silos de 20 L + roscas sem fim com motor de passo NEMA23 + células de carga | 2 | R$ 1.400,00 | Dosagem automática de sementes, adubos orgânicos e substratos com micélio. |
+| **Ninho do drone** | Abrigo com teto retrátil + placas de carga por contato + atuador | 1 | R$ 1.500,00 | Abrigo contra intempéries e recarga automática por contato do Infodrone. |
+| **Doca do AgBot**| Funis mecânicos de alinhamento + trilho de contato de cobre | 1 | R$ 900,00 | Guia o AgBot para carregar as baterias e reabastecer os tanques de líquido. |
+| **Gabinete** | Gabinete de alumínio IP65 com pintura eletrostática | 1 | R$ 1.500,00 | Abriga ao ar livre, com segurança, o servidor, a eletrônica de potência e as baias de carga. |
+| **SUBTOTAL (AGHUB AC)** | | | **R$ 11.500,00** | |
 
 ---
 
-### 2.4 AgBot Attachments & Modules (01 to 07)
+### 2.4 Implementos e módulos do AgBot (01 a 07)
 
-| Module ID | Module Name | Core Components | Cost (BRL) |
+| Módulo | Nome | Componentes principais | Custo (R$) |
 | :---: | :--- | :--- | :---: |
-| **Module 01** | **Lawn Mower Deck** | Dual 24V 150W brushless motors, 450mm stainless steel cutting blade, height actuator. | R$ 2,200.00 |
-| **Module 02** | **Precision Seeder** | Micro stepper motor auger, seed vacuum pickup head, furrowing shoe, press wheel. | R$ 2,400.00 |
-| **Module 03** | **Soil Probe & Sensor** | Motorized Linear Actuator, Modbus RS485 NPK + pH + Moisture 7-in-1 soil probe. | R$ 1,800.00 |
-| **Module 04** | **Patrol & Security** | 360° PTZ Thermal FLIR Lepton 3.5 Camera + 50W LED Searchlight + Siren. | R$ 3,100.00 |
-| **Module 05** | **Localized Irrigator** | 20L Polypropylene Tank, 12V Diaphragm Pump, Electro-solenoid nozzle array. | R$ 3,700.00 |
-| **Module 06** | **Robotic Harvester** | 5-DOF Articulated Robotic Arm, Soft Silicone Gripper, OAK-D Pro Depth Camera. | R$ 8,500.00 |
-| **Module 07** | **Mushroom Handler** | Ultrasonic Fogging Head, $CO_2$/Temp/Humidity Sensor Suite, 2-Tier Tray Lift. | R$ 1,200.00 |
-| **TOTAL (ALL MODULES 01-07)** | | | **R$ 22,900.00** |
+| **Módulo 01** | **Roçadeira de gramado** | Dois motores brushless 24V 150W, lâmina de corte inox de 450 mm, atuador de altura. | R$ 2.200,00 |
+| **Módulo 02** | **Semeadora de precisão** | Rosca dosadora com micromotor de passo, cabeçote de sucção de sementes, sulcador e roda compactadora. | R$ 2.400,00 |
+| **Módulo 03** | **Sonda e sensor de solo** | Atuador linear motorizado, sonda de solo 7 em 1 Modbus RS485 (NPK + pH + umidade). | R$ 1.800,00 |
+| **Módulo 04** | **Patrulha e segurança** | Câmera térmica PTZ 360° FLIR Lepton 3.5 + holofote LED de 50 W + sirene. | R$ 3.100,00 |
+| **Módulo 05** | **Irrigador localizado** | Tanque de polipropileno de 20 L, bomba de diafragma 12V, conjunto de bicos com eletroválvula. | R$ 3.700,00 |
+| **Módulo 06** | **Colhedor robótico** | Braço robótico articulado de 5 graus de liberdade, garra de silicone macio, câmera de profundidade OAK-D Pro. | R$ 8.500,00 |
+| **Módulo 07** | **Manejo de cogumelos** | Nebulizador ultrassônico, conjunto de sensores de $CO_2$/temperatura/umidade, elevador de bandejas de 2 níveis. | R$ 1.200,00 |
+| **TOTAL (MÓDULOS 01-07)** | | | **R$ 22.900,00** |
 
 ---
 
-## 3. Module 07 Specification: Mushroom Handler & Environmental Sensor
+## 3. Especificação do Módulo 07: manejo de cogumelos e sensoriamento ambiental
 
-Module 07 is engineered to integrate indoor gourmet mushroom cultivation (Shimeji, Paris, Portobello) and log-grown Shiitake monitoring into the AgBot platform.
+O Módulo 07 foi projetado para integrar à plataforma AgBot o cultivo interno de cogumelos gourmet (shimeji, paris, portobello) e o monitoramento do shiitake cultivado em toras.
 
 ```
                     ┌──────────────────────────────────────────┐
-                    │    Module 07 - Structural Schematic     │
+                    │    Módulo 07 - Esquema estrutural        │
                     └──────────────────────────────────────────┘
-                    │ [Ultrasonic Fogger]  [CO2/Temp/RH Sensor]│
+                    │ [Nebulizador ultra.] [Sensor CO2/T/UR]   │
                     │ ┌──────────────────────────────────────┐ │
-                    │ │ Top Tray: Harvest Box Support        │ │
+                    │ │ Bandeja superior: caixas de colheita │ │
                     │ ├──────────────────────────────────────┤ │
-                    │ │ Bottom Tray: Substrate Block Carrier │ │
+                    │ │ Bandeja inferior: blocos de substrato│ │
                     │ └──────────────────────────────────────┘ │
-                    │ [24V Linear Lift] [CAN Bus Interface]    │
+                    │ [Elevador linear 24V] [Interface CAN]    │
                     └──────────────────────────────────────────┘
 ```
 
-### 3.1 Electronic & Mechanical Subsystems
+### 3.1 Subsistemas eletrônicos e mecânicos
 
-1. **Environmental Sensing Array**:
-   * **$CO_2$ Sensor**: NDIR Sensor (SenseAir S8 / SCD30), range 0–10,000 ppm. Critical for monitoring mushroom fruiting vs. vegetative phases.
-   * **Temperature & Humidity**: Sensirion SHT45 (IP67 filter cap) delivering $\pm 1.0\%$ RH and $\pm 0.1^\circ\text{C}$ accuracy.
-2. **Micro-Fogging System**:
-   * Piezoelectric 24V Ultrasonic Atomizer Transducer generating 1.5–3.0 micron water droplets.
-   * 5L onboard water reservoir connected to AgBot’s auxiliary water port.
-3. **Substrate Block & Tray Lift Mechanism**:
-   * Motorized vertical scissor lift (24V 100mm/s linear actuator) with a dual-tray holder.
-   * **Payload Capacity**: Up to 25 kg (holds 10x 2.5kg substrate blocks or 4 harvest crates).
-4. **Firmware Communication Protocol (CAN-Bus ID: `0x07`)**:
-   * Broadcasts telemetry data at 1Hz (`CO2_PPM`, `TEMP_C`, `HUMIDITY_RH`, `TRAY_ELEVATION_MM`, `FOGGER_STATE`).
-
----
-
-## 4. Aerial Drone Mist Payload for 600m² Forest Shiitake Cultivation
-
-Due to the irregular topography and dense understory of the $600\text{ m}^2$ natural forest area, physical ground access by the AgBot is limited. The Infodrone utilizes a quick-release aerial spraying payload to service Shiitake logs.
-
-### 4.1 Payload Specifications & Spraying Mechanism
-* **Tank Volume**: 1.5 Liters of ultra-pure water/nutrient solution.
-* **Pump**: 12V DC Micro-Diaphragm Pump (1.2 L/min, 4 bar pressure).
-* **Nozzle Array**: Dual Brass Anti-Drip Atomizing Nozzles mounted on an extended carbon fiber boom extending 25cm below the props to avoid prop-wash distortion.
-* **Targeting System**: The Infodrone hovers 1.2 meters above mapped Shiitake log piles using its optical flow sensor and down-facing LiDAR, releasing a 10-second targeted mist cycle per pile.
+1. **Conjunto de sensoriamento ambiental**:
+   * **Sensor de $CO_2$**: sensor NDIR (SenseAir S8 / SCD30), faixa de 0 a 10.000 ppm. Essencial para distinguir as fases de frutificação e vegetativa dos cogumelos.
+   * **Temperatura e umidade**: Sensirion SHT45 (tampa com filtro IP67), com precisão de $\pm 1{,}0\%$ UR e $\pm 0{,}1^\circ\text{C}$.
+2. **Sistema de micronebulização**:
+   * Transdutor atomizador ultrassônico piezoelétrico 24V, que gera gotas de 1,5 a 3,0 mícrons.
+   * Reservatório embarcado de 5 L conectado à porta auxiliar de água do AgBot.
+3. **Mecanismo de elevação de bandejas e blocos de substrato**:
+   * Elevador pantográfico vertical motorizado (atuador linear 24V, 100 mm/s) com suporte para duas bandejas.
+   * **Capacidade de carga**: até 25 kg (10 blocos de substrato de 2,5 kg ou 4 caixas de colheita).
+4. **Protocolo de comunicação do firmware (ID CAN-Bus: `0x07`)**:
+   * Transmite telemetria a 1 Hz (`CO2_PPM`, `TEMP_C`, `HUMIDITY_RH`, `TRAY_ELEVATION_MM`, `FOGGER_STATE`).
 
 ---
 
-## 5. Structural Layout: 16m² Indoor Mushroom Chamber (2m x 8m Plan)
+## 4. Carga de nebulização aérea do drone para o shiitake na mata de 600 m²
 
-The $16\text{ m}^2$ facility (2.0m width $\times$ 8.0m length $\times$ 2.4m height) is configured with an incline ramp to allow the AgBot to enter, sense microclimates, humidify, and transport harvested trays.
+Por causa da topografia irregular e do sub-bosque denso da mata nativa de $600\text{ m}^2$, o acesso do AgBot por terra é limitado. O Infodrone usa uma carga de pulverização aérea de engate rápido para atender as toras de shiitake.
+
+### 4.1 Especificações da carga e mecanismo de pulverização
+* **Volume do tanque**: 1,5 litro de água ultrapura ou solução nutritiva.
+* **Bomba**: microbomba de diafragma 12V CC (1,2 L/min, 4 bar de pressão).
+* **Bicos**: dois bicos atomizadores antigotejamento de latão, montados numa haste de fibra de carbono que se estende 25 cm abaixo das hélices para evitar a distorção causada pelo fluxo de ar.
+* **Sistema de mira**: o Infodrone paira a 1,2 metro acima das pilhas de toras de shiitake mapeadas, usando o sensor de fluxo óptico e o LiDAR voltado para baixo, e libera um ciclo de névoa direcionado de 10 segundos por pilha.
+
+---
+
+## 5. Planta estrutural: câmara interna de cogumelos de 16 m² (planta de 2 m x 8 m)
+
+A instalação de $16\text{ m}^2$ (2,0 m de largura $\times$ 8,0 m de comprimento $\times$ 2,4 m de altura) tem uma rampa de acesso para que o AgBot possa entrar, medir microclimas, umidificar e transportar as bandejas colhidas.
 
 ```
 +-----------------------------------------------------------------------------------+
-|  [Ramp In]  ▲                                                                     |
-|  =======>   │  <------------------ 1.0m Central Aisle ----------------->          |
-|  (Width 2m) │                                                                     |
+|  [Rampa]    ▲                                                                     |
+|  =======>   │  <------------------ Corredor central de 1,0 m ----------->         |
+|  (Larg. 2m) │                                                                     |
 |             ▼                                                                     |
 | +-------------------------+                       +-----------------------------+ |
-| | Shelf Unit A (4 Tiers)  |                       | Shelf Unit B (4 Tiers)      | |
-| | Length: 6.5m            |                       | Length: 6.5m                | |
-| | Depth:  0.5m            |                       | Depth:  0.5m                | |
-| | Holds: 180 Blocks       |                       | Holds: 180 Blocks           | |
+| | Estante A (4 níveis)    |                       | Estante B (4 níveis)        | |
+| | Comprimento: 6,5 m      |                       | Comprimento: 6,5 m          | |
+| | Profundidade: 0,5 m     |                       | Profundidade: 0,5 m         | |
+| | Capacidade: 180 blocos  |                       | Capacidade: 180 blocos      | |
 | +-------------------------+                       +-----------------------------+ |
 |                                                                                   |
-| [Fresh Air HEPA Inflow]                           [Exhaust Fan + CO2 Dump]        |
+| [Entrada de ar com HEPA]                          [Exaustor + alívio de CO2]      |
 +-----------------------------------------------------------------------------------+
-                                   <--- 8.0m --->
+                                   <--- 8,0 m --->
 ```
 
-### 5.1 Environmental Controls
-* **Walls/Ceiling**: 50mm PIR (Polyisocyanurate) Insulated Sandwich Panels.
-* **Air Exchange**: Variable speed intake fan with HEPA H13 filtration + lower exhaust duct connected to a automated $CO_2$ relief damper controlled via AgHub.
-* **Ramp Access**: 12° slope non-slip rubberized aluminum ramp (0.8m clear width) compatible with AgBot’s track wheelbase.
+### 5.1 Controle ambiental
+* **Paredes e teto**: painéis sanduíche isolantes de PIR (poli-isocianurato) de 50 mm.
+* **Troca de ar**: ventilador de admissão com velocidade variável e filtragem HEPA H13 + duto de exaustão inferior ligado a um damper automático de alívio de $CO_2$ controlado pelo AgHub.
+* **Rampa de acesso**: rampa de alumínio emborrachado antiderrapante com 12° de inclinação (0,8 m de largura livre), compatível com a bitola do AgBot.
 
 ---
 
-## 6. Assembly Complexity, Timeline & AI Guided Workflow
+## 6. Complexidade de montagem, cronograma e montagem guiada por IA
 
-Assembly is designed to be accessible to non-specialists through a vision-guided AI assistant.
+A montagem foi pensada para ser acessível a não especialistas, com a ajuda de um assistente de IA guiado por visão.
 
-### 6.1 Assembly Matrix & Time Estimates
+### 6.1 Matriz de montagem e estimativas de tempo
 
-| Subsystem | Assembly Time | Difficulty Level (1 to 5) | Required Tools |
+| Subsistema | Tempo de montagem | Dificuldade (1 a 5) | Ferramentas necessárias |
 | :--- | :---: | :---: | :--- |
-| **AgBot Base Frame & Drivetrain** | 6 - 8 hours | Level 2 (Easy) | Allen Key Set, Wrenches (8-13mm), Wire Stripper. |
-| **Electronics Wiring & MCUs** | 4 - 5 hours | Level 3 (Moderate) | Soldering Iron (optional), Crimping Tool, Cable Ties. |
-| **AgHub AC Base Station** | 5 - 6 hours | Level 2 (Easy) | Drill, Screwdrivers, Wall Mount Anchors. |
-| **Infodrone Frame & Electronics**| 3 - 4 hours | Level 3 (Moderate) | Hex Drivers (1.5-2.5mm), Soldering Iron. |
-| **Modules 01 - 05** | 2 hours each | Level 1 (Very Easy) | Screw Drivers, Quick-Latch Assembly. |
-| **Module 06 (Harvester Arm)** | 4 - 5 hours | Level 4 (Advanced) | Calipers, Precision Screwdrivers. |
-| **Module 07 (Mushroom)** | 2 - 3 hours | Level 2 (Easy) | Allen Keys, Hose Clamp Pliers. |
-| **TOTAL ASSEMBLY TIME** | **~32 - 38 hours** | **Average: Level 2.3** | Basic Hand Tool Kit (Included in BOM). |
+| **Estrutura e tração do AgBot** | 6 a 8 horas | Nível 2 (fácil) | Jogo de chaves Allen, chaves de boca (8-13 mm), desencapador de fios. |
+| **Fiação eletrônica e MCUs** | 4 a 5 horas | Nível 3 (moderado) | Ferro de solda (opcional), alicate de crimpagem, abraçadeiras. |
+| **Estação AgHub AC** | 5 a 6 horas | Nível 2 (fácil) | Furadeira, chaves de fenda, buchas de fixação. |
+| **Estrutura e eletrônica do Infodrone**| 3 a 4 horas | Nível 3 (moderado) | Chaves hexagonais (1,5-2,5 mm), ferro de solda. |
+| **Módulos 01 a 05** | 2 horas cada | Nível 1 (muito fácil) | Chaves de fenda, montagem do engate rápido. |
+| **Módulo 06 (braço colhedor)** | 4 a 5 horas | Nível 4 (avançado) | Paquímetro, chaves de precisão. |
+| **Módulo 07 (cogumelos)** | 2 a 3 horas | Nível 2 (fácil) | Chaves Allen, alicate para abraçadeira de mangueira. |
+| **TEMPO TOTAL DE MONTAGEM** | **~32 a 38 horas** | **Média: nível 2,3** | Kit básico de ferramentas manuais (incluso na BOM). |
 
 ---
 
-### 6.2 AI Camera-Guided Assembly & Self-Diagnostic Protocol
+### 6.2 Montagem guiada por câmera com IA e protocolo de autodiagnóstico
 
 ```
-┌────────────────────────┐      Video Stream       ┌────────────────────────┐
-│ User Assembly Table    │ ──────────────────────► │ AI Vision Server (VLM) │
-│ Component + Smartphone │                         │ Segment Anything + YOLO│
+┌────────────────────────┐    Transmissão de vídeo ┌────────────────────────┐
+│ Bancada de montagem    │ ──────────────────────► │ Servidor de visão (VLM)│
+│ Componente + celular   │                         │ Segment Anything + YOLO│
 └────────────────────────┘                         └───────────┬────────────┘
             ▲                                                  │
-            │              Voice & Visual Overlay              │
+            │          Instruções por voz e sobreposição       │
             └──────────────────────────────────────────────────┘
 ```
 
-1. **AI Vision Guidance Process**:
-   * The builder places components on a flat surface and points a smartphone/webcam at the workspace.
-   * A Vision-Language Model (VLM) running on the AgHub server identifies the parts using real-time segmentation.
-   * The AI speaks step-by-step instructions (e.g., *"Pick up Motor Driver board A and connect the red 24V wire to terminal 1"*), highlighting the correct terminal with an augmented reality overlay on the screen.
+1. **Processo de orientação por visão computacional**:
+   * O montador coloca os componentes sobre uma superfície plana e aponta um celular ou webcam para a bancada.
+   * Um modelo de visão e linguagem (VLM) rodando no servidor AgHub identifica as peças com segmentação em tempo real.
+   * A IA dita as instruções passo a passo (por exemplo, *"Pegue a placa do driver de motor A e ligue o fio vermelho de 24V no borne 1"*), destacando o borne correto com uma sobreposição de realidade aumentada na tela.
 
-2. **Automated Self-Diagnostic Auto-Check (Post-Assembly)**:
-   * Once a subsystem is wired and powered on, the ESP32/Teensy controller initiates an internal self-test (`POST` - Power-On Self Test) over the CAN-Bus:
+2. **Autodiagnóstico automático (após a montagem)**:
+   * Quando um subsistema é ligado e energizado, o controlador ESP32/Teensy inicia um autoteste interno (`POST` - Power-On Self Test) pelo CAN-Bus:
 
 ```cpp
-// Internal Self-Diagnostic Sequence Example
+// Exemplo da sequência interna de autodiagnóstico
 void runAutoCheck() {
-    bool canStatus     = checkCANBusInterface();     // Verify ID response
-    bool imuStatus     = checkBNO085Ping();          // Verify I2C address 0x4A
-    bool rtkStatus     = checkUbloxSerial();         // Verify UART @ 230400 bps
-    float batteryVolt  = readBMSVoltage();           // Ensure 24V nominal
+    bool canStatus     = checkCANBusInterface();     // Verifica a resposta do ID
+    bool imuStatus     = checkBNO085Ping();          // Verifica o endereço I2C 0x4A
+    bool rtkStatus     = checkUbloxSerial();         // Verifica a UART a 230400 bps
+    float batteryVolt  = readBMSVoltage();           // Garante 24V nominais
     
     if(canStatus && imuStatus && rtkStatus && (batteryVolt > 22.0)) {
         playBuzzerSuccessTone();
@@ -225,38 +225,38 @@ void runAutoCheck() {
 
 ---
 
-## 7. Global Financial Balance & Return on Investment (ROI)
+## 7. Balanço financeiro geral e retorno sobre o investimento (ROI)
 
-### 7.1 Capital Expenditure (Capex)
+### 7.1 Investimento de capital (Capex)
 
-| Category | Cost (BRL) |
+| Categoria | Custo (R$) |
 | :--- | :---: |
-| AgBot Core 4x4 Ground Worker | R$ 14,500.00 |
-| Infodrone Aerial Scout + Forest Mist Payload | R$ 6,800.00 |
-| AgHub AC Central Dock Station | R$ 11,500.00 |
-| Attachments & Modules 01 through 06 | R$ 21,700.00 |
-| Module 07 (Mushroom Handler) | R$ 1,200.00 |
-| Mushroom Chamber 16m² Conversion Kit | R$ 3,800.00 |
-| 2x Buffer Water Tanks (1000L Each) | R$ 1,800.00 |
-| Juicing & Processing Kitchen Equipment (1L Fresh Juices) | R$ 6,380.00 |
-| **TOTAL CAPEX INVESTMENT** | **R$ 67,680.00** |
+| Núcleo do AgBot 4x4 (robô de solo) | R$ 14.500,00 |
+| Infodrone de reconhecimento + carga de nebulização para a mata | R$ 6.800,00 |
+| Estação central AgHub AC | R$ 11.500,00 |
+| Implementos e Módulos 01 a 06 | R$ 21.700,00 |
+| Módulo 07 (manejo de cogumelos) | R$ 1.200,00 |
+| Kit de adaptação da câmara de cogumelos de 16 m² | R$ 3.800,00 |
+| 2 reservatórios pulmão de água (1000 L cada) | R$ 1.800,00 |
+| Equipamentos de cozinha para sucos e processamento (sucos frescos de 1 L) | R$ 6.380,00 |
+| **INVESTIMENTO TOTAL (CAPEX)** | **R$ 67.680,00** |
 
 ---
 
-### 7.2 Monthly Financial Statement (DRE) - 300 Organic Subscription Boxes
+### 7.2 Demonstrativo de resultado mensal (DRE) - 300 cestas orgânicas por assinatura
 
-| Line Item | Monthly Amount (BRL) | Annual Amount (BRL) |
+| Item | Valor mensal (R$) | Valor anual (R$) |
 | :--- | :---: | :---: |
-| **Gross Revenue (Boxes, Delivery Fees, Juices, Mushrooms)** | **R$ 43,750.00** | **R$ 525,000.00** |
-| (-) Box Packaging, Glass Bottles & Bio-Bags | (R$ 3,042.00) | (R$ 36,504.00) |
-| (-) Delivery Logistics (Gasoline + Maintenance) | (R$ 743.40) | (R$ 8,920.80) |
-| (-) Crop, Substrate & Mycelium Inputs | (R$ 2,550.00) | (R$ 30,600.00) |
-| (-) Energy, Water & Connectivity | (R$ 550.00) | (R$ 6,600.00) |
-| (-) Digital Marketing & Instagram Meta Ads | (R$ 800.00) | (R$ 9,600.00) |
-| (-) System Hardware Maintenance Reserve | (R$ 1,273.00) | (R$ 15,276.00) |
-| **TOTAL OPERATING COSTS (OPEX)** | **(R$ 8,958.40)** | **(R$ 107,500.80)** |
-| **NET MONTHLY PROFIT** | **R$ 34,791.60** | **R$ 417,499.20** |
+| **Receita bruta (cestas, taxas de entrega, sucos, cogumelos)** | **R$ 43.750,00** | **R$ 525.000,00** |
+| (-) Embalagens das cestas, garrafas de vidro e sacolas biodegradáveis | (R$ 3.042,00) | (R$ 36.504,00) |
+| (-) Logística de entrega (combustível + manutenção) | (R$ 743,40) | (R$ 8.920,80) |
+| (-) Insumos de cultivo, substrato e micélio | (R$ 2.550,00) | (R$ 30.600,00) |
+| (-) Energia, água e conectividade | (R$ 550,00) | (R$ 6.600,00) |
+| (-) Marketing digital e anúncios no Instagram (Meta Ads) | (R$ 800,00) | (R$ 9.600,00) |
+| (-) Reserva para manutenção do hardware | (R$ 1.273,00) | (R$ 15.276,00) |
+| **CUSTO OPERACIONAL TOTAL (OPEX)** | **(R$ 8.958,40)** | **(R$ 107.500,80)** |
+| **LUCRO LÍQUIDO MENSAL** | **R$ 34.791,60** | **R$ 417.499,20** |
 
-$$\text{Payback Period} = \frac{\text{Capex (R\$ 67,680.00)}}{\text{Net Monthly Profit (R\$ 34,791.60)}} \approx \mathbf{1.95 \text{ months}}$$
+$$\text{Payback} = \frac{\text{Capex (R\$ 67.680,00)}}{\text{Lucro líquido mensal (R\$ 34.791,60)}} \approx \mathbf{1{,}95 \text{ mês}}$$
 
-All hardware costs are fully amortized in under **2 months of operation** while supplying 100% of organic produce requirements for 8 residents and generating over R$ 34k in monthly net income.
+Todo o custo de hardware é amortizado em menos de **2 meses de operação**, enquanto o sistema supre 100% da demanda de hortifrúti orgânico de 8 moradores e gera mais de R$ 34 mil de lucro líquido por mês.
