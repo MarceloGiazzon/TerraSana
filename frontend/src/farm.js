@@ -73,6 +73,7 @@ export const BED_SPACING = 1.6;
 
 export const PLACES = {
   gate: [-2, 2],
+  hub: [-23.25, 13.25],       // galpão do AgHub
   dock: [-14.5, 13],          // doca de recarga do AgBot, em frente ao galpão
   nest: [-10.5, 19.5],        // ninho do Infodrone
   roadV: 4.5,                 // eixo da estrada interna

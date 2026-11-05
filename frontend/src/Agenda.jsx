@@ -1,5 +1,6 @@
 import { Bot, CalendarClock, Check, ChevronRight, Lock, Play, Radio } from "lucide-react";
-import { findModule } from "./modules.js";
+import { DRONE_SERVICES, findModule } from "./modules.js";
+import { FunctionIcon, TaskIcons } from "./TaskIcons.jsx";
 import DroneIcon from "./DroneIcon.jsx";
 
 const clock = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -9,12 +10,6 @@ export function taskStatus(task, now) {
   if (now > task.end) return "done";
   if (now >= task.start) return "now";
   return "next";
-}
-
-function TaskIcon({ task, size = 14 }) {
-  if (task.agent === "drone") return <DroneIcon size={size} />;
-  const Icon = findModule(task.module)?.icon ?? Bot;
-  return <Icon size={size} strokeWidth={1.8} />;
 }
 
 function taskLabel(task) {
@@ -32,21 +27,14 @@ export default function Agenda({ day, now, cursor, selectedId, onReplay, onLive 
   const pct = (t) => `${((t - t0) / (t1 - t0)) * 100}%`;
   const hours = [];
   for (let h = Math.ceil(t0 / 3_600_000) * 3_600_000; h <= t1; h += 3_600_000) hours.push(h);
-  const lanes = [
-    { id: "agbot", label: "AgBot", icon: <Bot size={14} strokeWidth={1.8} />, tasks: day.agbot },
-    { id: "drone", label: "Infodrone", icon: <DroneIcon size={14} />, tasks: day.drone },
-  ];
-
   function activate(task) {
     const status = taskStatus(task, now);
     if (status === "done") onReplay(task);
     else if (status === "now") onLive();
   }
-
-  const groups = [
-    { id: "now", title: "Agora", tasks: day.all.filter((task) => taskStatus(task, now) === "now") },
-    { id: "next", title: "A seguir", tasks: day.all.filter((task) => taskStatus(task, now) === "next") },
-    { id: "done", title: "Concluídas", tasks: day.all.filter((task) => taskStatus(task, now) === "done").reverse() },
+  const lanes = [
+    { id: "agbot", label: "AgBot", icon: <Bot size={14} strokeWidth={1.8} />, tasks: day.agbot },
+    { id: "drone", label: "Infodrone", icon: <DroneIcon size={14} />, tasks: day.drone },
   ];
 
   return (
@@ -82,7 +70,7 @@ export default function Agenda({ day, now, cursor, selectedId, onReplay, onLive 
                       onClick={() => activate(task)}
                     >
                       {status === "now" && <span className="gantt-progress" style={{ width: `${progress * 100}%` }} />}
-                      <TaskIcon task={task} size={12} />
+                      <FunctionIcon task={task} size={12} />
                       <span className="gantt-task-text">{task.title}</span>
                     </button>
                   );
@@ -97,37 +85,56 @@ export default function Agenda({ day, now, cursor, selectedId, onReplay, onLive 
         </div>
       </div>
 
-      <div className="agenda-lists">
-        {groups.map((group) => (
-          <div className="agenda-group" key={group.id}>
-            <h3>{group.title} <span>{group.tasks.length}</span></h3>
-            {!group.tasks.length && <p className="agenda-empty">Nenhuma tarefa</p>}
-            <ul>
-              {group.tasks.map((task) => {
-                const status = group.id;
-                const selected = selectedId === task.id;
-                return (
-                  <li key={task.id}>
-                    <button type="button" className={`agenda-item ${status} ${selected ? "selected" : ""}`} disabled={status === "next"} onClick={() => activate(task)}>
-                      <span className="agenda-icon"><TaskIcon task={task} /></span>
-                      <span className="agenda-copy">
-                        <strong>{task.title}</strong>
-                        <small>{task.agent === "drone" ? "Infodrone" : findModule(task.module)?.code} · {task.zone}</small>
-                      </span>
-                      <span className="agenda-time">
-                        {clock.format(task.start)}–{clock.format(task.end)}
-                        {status === "done" && <em>{selected ? <><Play size={11} /> em revisão</> : <><Check size={11} /> ver <ChevronRight size={11} /></>}</em>}
-                        {status === "now" && <em className="live"><Radio size={11} /> ao vivo</em>}
-                        {status === "next" && <em className="locked"><Lock size={11} /> agendada</em>}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <TaskGroups tasks={day.all} now={now} selectedId={selectedId} onReplay={onReplay} onLive={onLive} />
     </section>
+  );
+}
+
+/** Listas Concluídas / Agora / A seguir de um conjunto de tarefas. */
+export function TaskGroups({ tasks, now, selectedId, onReplay, onLive, showAgent = true }) {
+  function activate(task) {
+    const status = taskStatus(task, now);
+    if (status === "done") onReplay(task);
+    else if (status === "now") onLive();
+  }
+
+  const groups = [
+    { id: "done", title: "Concluídas", tasks: tasks.filter((task) => taskStatus(task, now) === "done").reverse() },
+    { id: "now", title: "Agora", tasks: tasks.filter((task) => taskStatus(task, now) === "now") },
+    { id: "next", title: "A seguir", tasks: tasks.filter((task) => taskStatus(task, now) === "next") },
+  ];
+
+  return (
+    <div className="agenda-lists">
+      {groups.map((group) => (
+        <div className={`agenda-group ${group.id}`} key={group.id}>
+          <h3>{group.title} <span>{group.tasks.length}</span></h3>
+          {!group.tasks.length && <p className="agenda-empty">Nenhuma tarefa</p>}
+          <ul>
+            {group.tasks.map((task) => {
+              const status = group.id;
+              const selected = selectedId === task.id;
+              return (
+                <li key={task.id}>
+                  <button type="button" className={`agenda-item ${status} ${selected ? "selected" : ""}`} disabled={status === "next"} onClick={() => activate(task)}>
+                    {showAgent ? <TaskIcons task={task} /> : <span className="task-icons"><span className="task-icon fn"><FunctionIcon task={task} /></span></span>}
+                    <span className="agenda-copy">
+                      <strong>{task.title}</strong>
+                      <small>{task.agent === "drone" ? `Infodrone · ${DRONE_SERVICES[task.service]?.short ?? ""}` : `AgBot · ${findModule(task.module)?.code}`} · {task.zone}</small>
+                    </span>
+                    <span className="agenda-time">
+                      {clock.format(task.start)}–{clock.format(task.end)}
+                      {status === "done" && <em>{selected ? <><Play size={11} /> em revisão</> : <><Check size={11} /> ver <ChevronRight size={11} /></>}</em>}
+                      {status === "now" && <em className="live"><Radio size={11} /> ao vivo</em>}
+                      {status === "next" && <em className="locked"><Lock size={11} /> agendada</em>}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Apple, CloudFog, Cog, Droplet, FlaskConical, Gauge, Hand, Leaf, Package, Ruler, Scissors, Sprout, Target, Thermometer, Timer, Waves, Wind, Zap } from "lucide-react";
+import { Apple, CloudFog, ScanSearch, Cog, Droplet, FlaskConical, Gauge, Hand, Leaf, Package, Ruler, Scissors, Sprout, Target, Thermometer, Timer, Waves, Wind, Zap } from "lucide-react";
 
 // Cada módulo declara as métricas que publica em `module_telemetry`.
 // O mesmo identificador é usado pelo simulador Python e pelo firmware.
@@ -110,3 +110,9 @@ export function moduleTelemetry(telemetry, module) {
   if (module?.legacyKey && telemetry?.[module.legacyKey]) return telemetry[module.legacyKey];
   return {};
 }
+
+// Serviços do Infodrone: cada voo tem um símbolo da função desempenhada.
+export const DRONE_SERVICES = {
+  ndvi: { id: "ndvi", name: "Reconhecimento NDVI", short: "NDVI", icon: ScanSearch },
+  nebulizacao: { id: "nebulizacao", name: "Nebulização", short: "Nebulização", icon: CloudFog },
+};

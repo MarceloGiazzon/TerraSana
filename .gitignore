@@ -21,3 +21,4 @@ backend/data/
 *.db
 *.db-wal
 *.db-shm
+frontend/screenshots/

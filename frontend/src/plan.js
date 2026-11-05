@@ -120,6 +120,7 @@ function makeTask(def, agent, id) {
     agent,
     key: def.key,
     module: def.module ?? null,
+    service: def.service ?? null,
     title: def.title,
     zone: def.zone,
     speeds: def.speeds,
@@ -141,9 +142,9 @@ export function buildDay(now = Date.now()) {
   agbot.forEach((task) => { task.end = task.start + task.durationMs; });
 
   const droneDefs = [
-    { key: "shiitake-manha", title: "Nebulização do shiitake", zone: "Mata úmida", build: shiitakeMist, speeds: { workSpeed: 2, transitSpeed: 4 }, start: agbot[0].start + 15 * MIN },
-    { key: "ndvi", title: "Reconhecimento NDVI", zone: "Horta", build: ndviFlight, speeds: { workSpeed: 2.5, transitSpeed: 4 }, start: t0 - 4 * MIN },
-    { key: "shiitake-tarde", title: "Nebulização do shiitake", zone: "Mata úmida", build: shiitakeMist, speeds: { workSpeed: 2, transitSpeed: 4 }, start: agbot[agbot.length - 1].start + 5 * MIN },
+    { key: "shiitake-manha", service: "nebulizacao", title: "Nebulização do shiitake", zone: "Mata úmida", build: shiitakeMist, speeds: { workSpeed: 2, transitSpeed: 4 }, start: agbot[0].start + 15 * MIN },
+    { key: "ndvi", service: "ndvi", title: "Reconhecimento NDVI", zone: "Horta", build: ndviFlight, speeds: { workSpeed: 2.5, transitSpeed: 4 }, start: t0 - 4 * MIN },
+    { key: "shiitake-tarde", service: "nebulizacao", title: "Nebulização do shiitake", zone: "Mata úmida", build: shiitakeMist, speeds: { workSpeed: 2, transitSpeed: 4 }, start: agbot[agbot.length - 1].start + 5 * MIN },
   ];
   const drone = droneDefs.map((def) => {
     const task = makeTask(def, "drone", `drone-${def.key}`);

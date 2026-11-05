@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Map, { Layer, Marker, NavigationControl, ScaleControl, Source } from "react-map-gl/maplibre";
 import { CircleMarker, GeoJSON as LeafletGeoJSON, MapContainer, Marker as LeafletMarker, Polyline as LeafletPolyline, ScaleControl as LeafletScaleControl, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import L from "leaflet";
-import { Activity, Battery, Bot, Cpu, Crosshair, Droplets, Gauge, History, Lock, MapPin, Mountain, Radio, RotateCcw, Route, Server, Thermometer, Waypoints } from "lucide-react";
+import { Activity, Battery, Bot, ChevronDown, ChevronRight, Cpu, Crosshair, Droplets, Gauge, History, Lock, MapPin, Mountain, Radio, RotateCcw, Route, Server, Thermometer, Waypoints } from "lucide-react";
+import AgentPage from "./AgentPage.jsx";
+import DashboardPage from "./DashboardPage.jsx";
+import PageNav from "./PageNav.jsx";
 import Agenda from "./Agenda.jsx";
 import DroneIcon from "./DroneIcon.jsx";
 import HistoryChart from "./HistoryChart.jsx";
@@ -14,6 +17,7 @@ import { agbotState, droneState, hubState, performedPath, taskSamples } from "./
 import { MQTT_TOPIC, WOKWI_URL, connectBackend, connectMqtt } from "./sources.js";
 
 const [dockLng, dockLat] = toLngLat(...PLACES.dock);
+const hubLngLat = toLngLat(...PLACES.hub);
 const defaultLocation = { latitude: dockLat, longitude: dockLng };
 const mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 const maxTrailPoints = 240;
@@ -24,6 +28,7 @@ const robotIcon = L.divIcon({
   iconSize: [36, 36],
   iconAnchor: [18, 18],
 });
+const hubLeafletIcon = L.divIcon({ className: "leaflet-hub-icon", html: '<span class="leaflet-hub-core"></span>', iconSize: [26, 26], iconAnchor: [13, 13] });
 const droneLeafletIcon = L.divIcon({ className: "leaflet-drone-icon", html: '<span class="leaflet-drone-core"></span>', iconSize: [22, 22], iconAnchor: [11, 11] });
 
 // Rampa sequencial (um só matiz, claro → escuro) para a umidade do solo.
@@ -140,9 +145,9 @@ function Metric({ icon: Icon, label, value, unit, accent = "" }) {
   );
 }
 
-function AgentRow({ icon, name, badge, state, detail, active }) {
+function AgentRow({ href, icon, name, badge, state, detail, active }) {
   return (
-    <div className={`agent-row ${active ? "active" : ""}`}>
+    <a className={`agent-row ${active ? "active" : ""}`} href={href} title={`Ver detalhes do ${name}`}>
       <span className="agent-icon">{icon}</span>
       <div className="agent-copy">
         <span className="agent-name">{name}{badge && <em>{badge}</em>}</span>
@@ -150,8 +155,14 @@ function AgentRow({ icon, name, badge, state, detail, active }) {
         {detail && <small>{detail}</small>}
       </div>
       <span className="agent-dot" title={active ? "Ativo" : "Em espera"} />
-    </div>
+      <ChevronRight className="agent-chevron" size={15} />
+    </a>
   );
+}
+
+function parseAgentView() {
+  const match = window.location.hash.match(/^#\/(?:agente\/(hub|drone|agbot)|(dashboard))$/);
+  return match ? match[1] ?? match[2] : null;
 }
 
 export default function App() {
@@ -164,12 +175,17 @@ export default function App() {
   const [viewMode, setViewMode] = useState("2d");
   const [mapLayer, setMapLayer] = useState("trail");
   const [day] = useState(() => buildDay());
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [agentView, setAgentView] = useState(parseAgentView);
   const [clock, setClock] = useState(() => Date.now());
   const [replay, setReplay] = useState(null); // { taskId, cursor, playing, speed }
   const rasterMap = useRef(null);
   const headingRef = useRef(null);
   const [supportsWebGL2] = useState(() => Boolean(document.createElement("canvas").getContext("webgl2")));
   const isDemo = source === "demo";
+  const showDashboard = isDemo && agentView === "dashboard";
+  const showAgent = isDemo && agentView && !showDashboard;
+  const showMain = !showAgent && !showDashboard;
 
   const handleTelemetry = useCallback((payload, t = Date.now()) => {
     setTelemetry(payload);
@@ -210,6 +226,13 @@ export default function App() {
     });
   }, [source, handleTelemetry]);
 
+  // Navegação entre o painel, o dashboard e as páginas dos agentes (#/dashboard, #/agente/hub, ...).
+  useEffect(() => {
+    const onHash = () => { setAgentView(parseAgentView()); window.scrollTo(0, 0); };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
   // Relógio do modo demonstração.
   useEffect(() => {
     if (!isDemo) return undefined;
@@ -238,7 +261,12 @@ export default function App() {
 
   function startReplay(task) {
     setReplay({ taskId: task.id, cursor: task.start, playing: true, speed: 8 });
-    headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (parseAgentView()) window.location.hash = "#/";
+    else headingRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function goLive() {
+    setReplay(null);
+    if (parseAgentView()) window.location.hash = "#/";
   }
 
   const viewTime = replay ? replay.cursor : clock;
@@ -335,6 +363,12 @@ export default function App() {
         </div>
       </header>
 
+      {showDashboard && <DashboardPage day={day} now={clock} replayTaskId={replay?.taskId} onReplay={startReplay} onLive={goLive} />}
+      {showAgent && <AgentPage agentId={agentView} day={day} now={clock} onReplay={startReplay} onLive={goLive} />}
+
+      {showMain && (
+        <>
+      {isDemo && <PageNav current="painel" />}
       <section className="page-heading" id="inicio" ref={headingRef}>
         <div>
           <p className="eyebrow">CENTRO DE CONTROLE <span> / </span> {replay ? "RETROSPECTIVA" : "UNIDADE 01"}</p>
@@ -440,6 +474,11 @@ export default function App() {
                   <span className="farm-label">{label.text}</span>
                 </Marker>
               ))}
+              {isDemo && (
+                <Marker longitude={hubLngLat[0]} latitude={hubLngLat[1]} anchor="center">
+                  <a className="hub-marker" href="#/agente/hub" aria-label="AgHub: ver detalhes" title="AgHub · estação central"><Server size={15} strokeWidth={2} /></a>
+                </Marker>
+              )}
               {hasSignal && (
                 <Marker latitude={location.latitude} longitude={location.longitude} anchor="center">
                   <div className="robot-marker" aria-label="Posição atual do AgBot"><span className="marker-pulse" /><Bot size={19} strokeWidth={2} /></div>
@@ -477,6 +516,7 @@ export default function App() {
               {mapLayer === "trail" && trail.length > 1 && <LeafletPolyline positions={trail.map(([lng, lat]) => [lat, lng])} pathOptions={{ color: TRAIL_COLOR, weight: 2.5 }} />}
               {mapLayer === "trail" && droneTrail.length > 1 && <LeafletPolyline positions={droneTrail.map(([lng, lat]) => [lat, lng])} pathOptions={{ color: DRONE_COLOR, weight: 2 }} />}
               {hasSignal && <LeafletMarker position={[location.latitude, location.longitude]} icon={robotIcon} />}
+              {isDemo && <LeafletMarker position={[hubLngLat[1], hubLngLat[0]]} icon={hubLeafletIcon} eventHandlers={{ click: () => { window.location.hash = "#/agente/hub"; } }} />}
               {isDemo && <LeafletMarker position={[demo.drone.lngLat[1], demo.drone.lngLat[0]]} icon={droneLeafletIcon} />}
               <ZoomControl position="topright" />
               <LeafletScaleControl position="bottomleft" />
@@ -523,8 +563,9 @@ export default function App() {
             <>
               <div className="section-rule"><span>AGENTES</span><span className="section-rule-line" /></div>
               <div className="agents">
-                <AgentRow icon={<Server size={17} strokeWidth={1.8} />} name="AgHub" badge="sempre ativo" state="Estação central online" detail={`Rede ${demo.hub.grid} · ${demo.hub.rtk} · reservatório ${fmt(demo.hub.water, 0)}%`} active />
+                <AgentRow href="#/agente/hub" icon={<Server size={17} strokeWidth={1.8} />} name="AgHub" badge="sempre ativo" state="Estação central online" detail={`Rede ${demo.hub.grid} · ${demo.hub.rtk} · reservatório ${fmt(demo.hub.water, 0)}%`} active />
                 <AgentRow
+                  href="#/agente/drone"
                   icon={<DroneIcon size={17} />}
                   name="Infodrone"
                   state={demo.drone.phase}
@@ -534,6 +575,7 @@ export default function App() {
                   active={Boolean(demo.drone.task)}
                 />
                 <AgentRow
+                  href="#/agente/agbot"
                   icon={<Bot size={17} strokeWidth={1.8} />}
                   name="AgBot"
                   state={demo.agbot.phase}
@@ -580,23 +622,17 @@ export default function App() {
         </aside>
       </section>
 
-      {isDemo && (
-        <Agenda
-          day={day}
-          now={clock}
-          cursor={replay ? replay.cursor : null}
-          selectedId={replay?.taskId ?? demo.agbot.task?.id}
-          onReplay={startReplay}
-          onLive={() => setReplay(null)}
-        />
-      )}
-
       <section className="history-section" aria-labelledby="history-heading">
         <div className="history-section-head">
-          <h2 id="history-heading">{historyTitle}</h2>
+          <h2 id="history-heading">
+            <button type="button" className="collapse-toggle" aria-expanded={historyOpen} aria-controls="history-body" onClick={() => setHistoryOpen((open) => !open)}>
+              <ChevronDown size={17} className={historyOpen ? "open" : ""} />
+              {historyTitle}
+            </button>
+          </h2>
           <span>{historyNote}</span>
         </div>
-        <div className="history-grid">
+        <div className="history-grid" id="history-body" hidden={!historyOpen}>
           <HistoryChart title={focusIsDrone ? "Bateria do drone" : "Bateria"} unit="%" points={chartA} color={BATTERY_COLOR} limits={[0, 100]} tStart={isDemo ? demo.focus.start : undefined} tEnd={isDemo ? demo.focus.end : undefined} />
           <HistoryChart title={focusIsDrone ? "Altitude" : "Umidade do solo"} unit={focusIsDrone ? " m" : "%"} points={chartB} color={focusIsDrone ? ALTITUDE_COLOR : MOISTURE_COLOR} limits={[0, 100]} tStart={isDemo ? demo.focus.start : undefined} tEnd={isDemo ? demo.focus.end : undefined} />
           <div className="history-card moisture-summary">
@@ -611,6 +647,19 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {isDemo && (
+        <Agenda
+          day={day}
+          now={clock}
+          cursor={replay ? replay.cursor : null}
+          selectedId={replay?.taskId ?? demo.agbot.task?.id}
+          onReplay={startReplay}
+          onLive={goLive}
+        />
+      )}
+        </>
+      )}
 
       <footer className="bottom-bar"><span>AGBOT <b>SISTEMAS DE CAMPO</b></span><span>MONITORAMENTO IoT <i /> GIS EM TEMPO REAL</span><button type="button" onClick={() => window.location.reload()} title="Atualizar painel"><RotateCcw size={14} /> ATUALIZAR</button></footer>
     </main>
